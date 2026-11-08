@@ -96,12 +96,6 @@
                     <span id="current-date-display" class="text-xs text-slate-400">วัน...ที่ ... ... ....</span>
                     <span id="live-clock" class="text-base font-mono font-bold text-emerald-400 tracking-wider">00:00:00</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
-                        ระบบเสถียร (GitHub Ready)
-                    </span>
-                </div>
             </div>
         </div>
     </header>
@@ -247,7 +241,7 @@
                         <span>4 & 5. ประเภทเหตุและรายละเอียด (Incident Nature & Details)</span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-slate-400 mb-1">ประเภทเหตุฉุกเฉิน <span class="text-red-400">*</span></label>
                             <select id="inc_type" required class="w-full bg-slate-800 border border-slate-700 text-amber-300 font-bold form-input-lg focus:border-red-500 focus:outline-none">
@@ -272,24 +266,9 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">สถานะเหตุการณ์ขณะรับแจ้ง</label>
-                            <select id="inc_details_ongoing" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
-                                <option value="กำลังลุกลาม/ขยายตัว">กำลังลุกลาม / ขยายตัวรวดเร็ว</option>
-                                <option value="เพลิงเริ่มสงบ/เริ่มควบคุมได้">เพลิงเริ่มสงบ / เริ่มควบคุมได้</option>
-                                <option value="ดับแล้ว/ต้องการการระบายควัน">ดับแล้ว / ต้องการการตรวจสอบและระบายควัน</option>
-                            </select>
-                        </div>
-
-                        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">รายละเอียดเหตุการณ์ (เกิดอะไรขึ้น)</label>
-                                <textarea id="inc_details_what" rows="2" placeholder="อธิบายสภาพเหตุการณ์เบื้องต้น..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">สภาพอากาศ/ปัจจัยภายนอก</label>
-                                <textarea id="inc_details_weather" rows="2" placeholder="ลมแรง / ฝนตก / ทัศนวิสัย..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
-                            </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รายละเอียดเหตุการณ์ (เกิดอะไรขึ้น)</label>
+                            <textarea id="inc_details_what" rows="2" placeholder="อธิบายสภาพเหตุการณ์เบื้องต้น..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
                         </div>
                     </div>
                 </div>
@@ -437,70 +416,42 @@
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div class="flex items-center space-x-2 text-emerald-400 font-semibold">
                             <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-                            <span>9. ข้อมูลลำดับเวลาสากล (NFPA Operational Time Stamps)</span>
+                            <span>9. ข้อมูลลำดับเวลาสากล (Operational Time Stamps)</span>
                         </div>
                         <span class="text-xs text-slate-400">กดปุ่มเพื่อปั๊มเวลาปัจจุบันทันที</span>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">Call Received</label>
+                            <label class="block text-xs text-slate-400 mb-1">เวลารับแจ้งเหตุ (บันทึกอัตโนมัติ)</label>
                             <div class="flex">
-                                <input type="text" id="ts_call_received" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <input type="text" id="ts_call_received" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-amber-400 text-xs p-2 rounded-l font-mono">
                                 <button type="button" onclick="stampTime('ts_call_received')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">Incident Created</label>
+                            <label class="block text-xs text-slate-400 mb-1">เวลาออกปฏิบัติงาน</label>
                             <div class="flex">
-                                <input type="text" id="ts_created" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
-                                <button type="button" onclick="stampTime('ts_created')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Dispatch Time</label>
-                            <div class="flex">
-                                <input type="text" id="ts_dispatch" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-amber-400 text-xs p-2 rounded-l font-mono">
+                                <input type="text" id="ts_dispatch" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
                                 <button type="button" onclick="stampTime('ts_dispatch')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">En Route</label>
-                            <div class="flex">
-                                <input type="text" id="ts_enroute" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
-                                <button type="button" onclick="stampTime('ts_enroute')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Arrival Time</label>
+                            <label class="block text-xs text-slate-400 mb-1">เวลาถึงที่เกิดเหตุ</label>
                             <div class="flex">
                                 <input type="text" id="ts_arrival" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-emerald-400 text-xs p-2 rounded-l font-mono">
                                 <button type="button" onclick="stampTime('ts_arrival')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">Op Started</label>
-                            <div class="flex">
-                                <input type="text" id="ts_op_start" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
-                                <button type="button" onclick="stampTime('ts_op_start')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Under Control</label>
+                            <label class="block text-xs text-slate-400 mb-1">เวลาสามารถควบคุมเหตุการณ์ได้</label>
                             <div class="flex">
                                 <input type="text" id="ts_under_control" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-sky-400 text-xs p-2 rounded-l font-mono">
                                 <button type="button" onclick="stampTime('ts_under_control')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">Incident Closed</label>
-                            <div class="flex">
-                                <input type="text" id="ts_closed" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
-                                <button type="button" onclick="stampTime('ts_closed')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">In Service / Return</label>
+                            <label class="block text-xs text-slate-400 mb-1">เวลาถอนกำลัง</label>
                             <div class="flex">
                                 <input type="text" id="ts_in_service" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
                                 <button type="button" onclick="stampTime('ts_in_service')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
@@ -754,8 +705,6 @@
                 incidentType: document.getElementById('inc_type').value,
                 incidentSeverity: document.getElementById('inc_severity').value,
                 detailsWhat: document.getElementById('inc_details_what').value,
-                detailsOngoing: document.getElementById('inc_details_ongoing').value,
-                detailsWeather: document.getElementById('inc_details_weather').value,
                 victimsInjured: document.getElementById('inc_victims_injured').value || '0',
                 victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
                 victimsMissing: document.getElementById('inc_victims_missing').value || '0',
@@ -776,13 +725,9 @@
                 selectedStations: stations,
                 resOtherDepts: document.getElementById('inc_res_other_depts').value,
                 callReceivedTime: document.getElementById('ts_call_received').value,
-                incidentCreatedTime: document.getElementById('ts_created').value,
                 dispatchTime: document.getElementById('ts_dispatch').value,
-                enrouteTime: document.getElementById('ts_enroute').value,
                 arrivalTime: document.getElementById('ts_arrival').value,
-                opStartTime: document.getElementById('ts_op_start').value,
                 underControlTime: document.getElementById('ts_under_control').value,
-                closedTime: document.getElementById('ts_closed').value,
                 inServiceTime: document.getElementById('ts_in_service').value,
                 cause: document.getElementById('inc_cause').value,
                 damageEst: document.getElementById('inc_damage_est').value,
@@ -834,8 +779,11 @@ ${item.resOtherDepts ? '🤝 *หน่วยงานสนับสนุน:*
 👤 *ผู้แจ้ง:* ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
 👨‍🚒 *ผู้รับแจ้ง:* ${item.dispatcherName}
 ----------------------------------------
-⏱️ *เวลาสั่งการ:* ${item.dispatchTime || '-'}
-⏱️ *เวลาถึงที่เกิดเหตุ:* ${item.arrivalTime || '-'}`;
+⏱️ *เวลารับแจ้งเหตุ:* ${item.callReceivedTime || '-'}
+⏱️ *เวลาออกปฏิบัติงาน:* ${item.dispatchTime || '-'}
+⏱️ *เวลาถึงที่เกิดเหตุ:* ${item.arrivalTime || '-'}
+⏱️ *เวลาควบคุมเหตุได้:* ${item.underControlTime || '-'}
+⏱️ *เวลาถอนกำลัง:* ${item.inServiceTime || '-'}`;
 
             if (!TELEGRAM_CHAT_ID || TELEGRAM_CHAT_ID.startsWith('@')) {
                 openTelegramFallback(text);
@@ -1041,8 +989,6 @@ ${item.resOtherDepts ? '🤝 *หน่วยงานสนับสนุน:*
             document.getElementById('inc_type').value = item.incidentType;
             document.getElementById('inc_severity').value = item.incidentSeverity;
             document.getElementById('inc_details_what').value = item.detailsWhat;
-            document.getElementById('inc_details_ongoing').value = item.detailsOngoing;
-            document.getElementById('inc_details_weather').value = item.detailsWeather;
             document.getElementById('inc_victims_injured').value = item.victimsInjured;
             document.getElementById('inc_victims_fatal').value = item.victimsFatal;
             document.getElementById('inc_victims_missing').value = item.victimsMissing;
@@ -1069,13 +1015,9 @@ ${item.resOtherDepts ? '🤝 *หน่วยงานสนับสนุน:*
 
             document.getElementById('inc_res_other_depts').value = item.resOtherDepts || '';
             document.getElementById('ts_call_received').value = item.callReceivedTime || '';
-            document.getElementById('ts_created').value = item.incidentCreatedTime || '';
             document.getElementById('ts_dispatch').value = item.dispatchTime || '';
-            document.getElementById('ts_enroute').value = item.enrouteTime || '';
             document.getElementById('ts_arrival').value = item.arrivalTime || '';
-            document.getElementById('ts_op_start').value = item.opStartTime || '';
             document.getElementById('ts_under_control').value = item.underControlTime || '';
-            document.getElementById('ts_closed').value = item.closedTime || '';
             document.getElementById('ts_in_service').value = item.inServiceTime || '';
             document.getElementById('inc_cause').value = item.cause || '';
             document.getElementById('inc_damage_est').value = item.damageEst || '';
