@@ -1,9 +1,9 @@
 <!-- ... existing code ... -->
             <!-- Navigation -->
             <div class="flex items-center space-x-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
-                    ระบบพร้อมใช้งาน (Telegram Bot Active)
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 mr-2 animate-pulse"></span>
+                    ระบบพร้อมใช้งาน (Telegram Integration Active)
                 </span>
             </div>
         </div>
@@ -17,7 +17,7 @@
                         </button>
                         <button type="button" onclick="triggerCurrentFormTelegram()" class="w-full sm:w-auto px-5 py-2.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/40 rounded-xl font-semibold text-sm transition flex items-center justify-center space-x-2">
                             <i class="fa-paper-plane text-sky-400 fab fa-telegram"></i>
-                            <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา (Telegram)</span>
+                            <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา</span>
                         </button>
                         <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-red-600/30 transition flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-floppy-disk"></i>
@@ -33,7 +33,7 @@
         const TELEGRAM_BOT_TOKEN = '9037116565:AAGpFIVcelwk1av1ww_o_24hX1zPM2y7uAs';
         const TELEGRAM_CHAT_ID = '@RadioCenter199_bot';
 
-        // Function to send Telegram Notification using HTML/Markdown formatting
+        // Function to send Telegram Notification using HTML formatting
         async function sendTelegramNotification(id) {
             const item = incidents.find(inc => inc.id === id);
             if (!item) return;
