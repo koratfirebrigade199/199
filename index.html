@@ -1,39 +1,815 @@
-<!-- ... existing code ... -->
-            <!-- Navigation -->
-            <div class="flex items-center space-x-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                    <span class="w-2 h-2 rounded-full bg-sky-400 mr-2 animate-pulse"></span>
-                    ระบบพร้อมใช้งาน (Telegram Integration Active)
-                </span>
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรับแจ้งเหตุฉุกเฉิน 199 เทศบาลนครนครราชสีมา</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#ffe1e1',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            900: '#7f1d1d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .form-input-lg {
+            font-size: 0.95rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.5rem;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-red-500 selection:text-white">
+
+    <!-- Top Header / Bar -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-600/30 font-bold text-xl">
+                    <i class="fa-solid fa-fire-extinguisher"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight flex items-center gap-2">
+                        ศูนย์รับแจ้งเหตุฉุกเฉิน 199 
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">เทศบาลนครนครราชสีมา</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">ระบบบันทึกและจัดการสั่งการเหตุฉุกเฉิน (ECC / PSAP Standard)</p>
+                </div>
+            </div>
+
+            <!-- Real-time Clock & Status -->
+            <div class="flex items-center space-x-4">
+                <div class="hidden sm:flex flex-col items-end">
+                    <span id="current-date-display" class="text-xs text-slate-400">วัน...ที่ ... ... ....</span>
+                    <span id="live-clock" class="text-base font-mono font-bold text-emerald-400 tracking-wider">00:00:00</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+                        ระบบเสถียร (GitHub Ready)
+                    </span>
+                </div>
             </div>
         </div>
     </header>
-<!-- ... existing code ... -->
-                    <!-- Form Actions -->
-                    <div class="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-slate-700/50">
-                        <button type="button" onclick="resetForm()" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-sm transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-rotate-right"></i>
-                            <span>ล้างข้อมูล</span>
-                        </button>
-                        <button type="button" onclick="triggerCurrentFormTelegram()" class="w-full sm:w-auto px-5 py-2.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/40 rounded-xl font-semibold text-sm transition flex items-center justify-center space-x-2">
-                            <i class="fa-paper-plane text-sky-400 fab fa-telegram"></i>
-                            <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา</span>
-                        </button>
-                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-red-600/30 transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>บันทึกข้อมูลเหตุการณ์</span>
-                        </button>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-800 no-print">
+            <button id="tab-btn-form" onclick="switchTab('form')" class="py-3 px-6 font-semibold text-sm border-b-2 border-red-500 text-red-400 flex items-center space-x-2 transition">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>แบบบันทึกรับแจ้งเหตุ (Entry Form)</span>
+            </button>
+            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="py-3 px-6 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition">
+                <i class="fa-solid fa-list-check"></i>
+                <span>รายการเหตุการณ์ทั้งหมด (Dashboard)</span>
+                <span id="incident-count-badge" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+        </div>
+
+        <!-- SECTION 1: Incident Form Tab -->
+        <div id="tab-form-content" class="space-y-6">
+            <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                <input type="hidden" id="editing_id" value="">
+
+                <!-- 1. ข้อมูลการรับแจ้ง -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-headset text-lg"></i>
+                        <span>1. ข้อมูลการรับแจ้ง (Call Receipt Information)</span>
                     </div>
-                </form>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">เลขที่เหตุการณ์ (Incident ID)</label>
+                            <div class="relative">
+                                <input type="text" id="inc_id" readonly class="w-full bg-slate-950 border border-slate-700 text-amber-400 font-mono font-bold form-input-lg focus:outline-none cursor-not-allowed">
+                                <button type="button" onclick="generateIncidentId()" class="absolute right-2 top-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded" title="สร้างรหัสใหม่">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">วันที่และเวลารับแจ้ง</label>
+                            <input type="datetime-local" id="inc_call_datetime" required class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ช่องทางการรับแจ้ง</label>
+                            <select id="inc_channel" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="โทรศัพท์ 199">โทรศัพท์ 199 (สายตรงดับเพลิง)</option>
+                                <option value="โทรศัพท์ 191">รับโอนจาก 191 (ตำรวจ)</option>
+                                <option value="วิทยุสื่อสาร">วิทยุสื่อสาร (Radio Feed)</option>
+                                <option value="แอปพลิเคชัน">แอปพลิเคชัน / รับแจ้งออนไลน์</option>
+                                <option value="รับแจ้งด้วยตนเอง">ผู้แจ้งเดินทางมาแจ้ง ณ ศูนย์ฯ</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">เจ้าหน้าที่ผู้รับแจ้ง (Dispatcher ID)</label>
+                            <select id="inc_dispatcher" required class="w-full bg-slate-800 border border-slate-700 text-amber-300 font-semibold form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="สื่อสาร 1 (นายมานพ  พิณปรุ)">สื่อสาร 1 (นายมานพ  พิณปรุ)</option>
+                                <option value="สื่อสาร 2 (นายบัณฑิต กุลจันทร์)">สื่อสาร 2 (นายบัณฑิต กุลจันทร์)</option>
+                                <option value="สื่อสาร 3 (นายสุรพงษ์ ชิดนอก)">สื่อสาร 3 (นายสุรพงษ์ ชิดนอก)</option>
+                                <option value="สื่อสาร 4 (นายชนะภัย มานะดี)">สื่อสาร 4 (นายชนะภัย มานะดี)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ข้อมูลผู้แจ้งเหตุ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-user-shield text-lg"></i>
+                        <span>2. ข้อมูลผู้แจ้งเหตุ (Caller Information)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ชื่อ-นามสกุล ผู้แจ้ง</label>
+                            <input type="text" id="inc_caller_name" placeholder="ระบุชื่อ-นามสกุล" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">หมายเลขโทรศัพท์ติดต่อ</label>
+                            <input type="tel" id="inc_caller_phone" placeholder="08X-XXX-XXXX" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ความสัมพันธ์กับเหตุการณ์</label>
+                            <select id="inc_caller_rel" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="ผู้พบเหตุ">ผู้พบเหตุ (Witness)</option>
+                                <option value="ผู้ประสบเหตุ">ผู้ประสบเหตุ (Victim)</option>
+                                <option value="เจ้าของสถานที่/อาคาร">เจ้าของสถานที่ / อาคาร</option>
+                                <option value="เจ้าหน้าที่/อาสาสมัคร">เจ้าหน้าที่ / อาสาสมัคร</option>
+                                <option value="ไม่ระบุ">ไม่ระบุ</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ตำแหน่งของผู้แจ้งขณะโทร</label>
+                            <input type="text" id="inc_caller_loc" placeholder="เช่น จุดเกิดเหตุ / ถนนฝั่งตรงข้าม" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ข้อมูลสถานที่เกิดเหตุ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-location-dot text-lg"></i>
+                        <span>3. ข้อมูลสถานที่เกิดเหตุ (Incident Location)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ที่อยู่เกิดเหตุโดยละเอียด <span class="text-red-400">*</span></label>
+                            <input type="text" id="inc_address" required placeholder="เลขที่ ถนน ซอย ชุมชน ตรอก ตำบล อธิบายนัดหมายสถานที่" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">จุดสังเกต (Landmark)</label>
+                            <input type="text" id="inc_landmark" placeholder="ใกล้เคียงวัด/โรงเรียน/ห้างสรรพสินค้า" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ลักษณะอาคารหรือสถานที่</label>
+                            <input type="text" id="inc_building_type" placeholder="อาคารพาณิชย์ 3 ชั้น / บ้านไม้ / โกดัง / ถนนสาธารณะ" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">จุดเข้า-ออก ที่เหมาะสมสำหรับรถดับเพลิง/กู้ภัย</label>
+                            <input type="text" id="inc_access_point" placeholder="ระบุซอยทางเข้า หรือข้อจำกัดความกว้างถนน" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ประเภทเหตุ & รายละเอียดเหตุ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                        <span>4 & 5. ประเภทเหตุและรายละเอียด (Incident Nature & Details)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ประเภทเหตุฉุกเฉิน <span class="text-red-400">*</span></label>
+                            <select id="inc_type" required class="w-full bg-slate-800 border border-slate-700 text-amber-300 font-bold form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="เพลิงไหม้อาคาร">เพลิงไหม้อาคาร/สิ่งปลูกสร้าง</option>
+                                <option value="เพลิงไหม้รถยนต์">เพลิงไหม้ยานพาหนะ/รถยนต์</option>
+                                <option value="เพลิงไหม้หญ้า/ขยะ">เพลิงไหม้หญ้า / ขยะ / ป่า</option>
+                                <option value="อุบัติเหตุจราจร">อุบัติเหตุจราจร (Rescue Ops)</option>
+                                <option value="กู้ภัย/จับสัตว์เลื้อยคลาน">กู้ภัย / จับสัตว์เลื้อยคลาน / ช่วยเหลือประชาชน</option>
+                                <option value="สารเคมีและวัตถุอันตราย">สารเคมีรั่วไหล / วัตถุอันตราย (Hazmat)</option>
+                                <option value="น้ำท่วม/วาตภัย">น้ำท่วม / วาตภัย / สาธารณภัย</option>
+                                <option value="ต้นไม้ล้มทับสิ่งกีดขวาง">ต้นไม้ล้มทับบ้านเรือน/สายไฟ/กีดขวาง</option>
+                                <option value="เหตุสาธารณภัยอื่นๆ">เหตุสาธารณภัยอื่นๆ</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ระดับความรุนแรง (Severity level)</label>
+                            <select id="inc_severity" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="ระดับ 1 (เล็กน้อย)">ระดับ 1 - เหตุเล็กน้อย Control ได้รวดเร็ว</option>
+                                <option value="ระดับ 2 (ปานกลาง)">ระดับ 2 - เหตุปานกลาง ต้องใช้ทรัพยากรเพิ่ม</option>
+                                <option value="ระดับ 3 (รุนแรงมาก)">ระดับ 3 - เหตุรุนแรงมาก ร้องขอการสนับสนุน</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">สถานะเหตุการณ์ขณะรับแจ้ง</label>
+                            <select id="inc_details_ongoing" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                                <option value="กำลังลุกลาม/ขยายตัว">กำลังลุกลาม / ขยายตัวรวดเร็ว</option>
+                                <option value="เพลิงเริ่มสงบ/เริ่มควบคุมได้">เพลิงเริ่มสงบ / เริ่มควบคุมได้</option>
+                                <option value="ดับแล้ว/ต้องการการระบายควัน">ดับแล้ว / ต้องการการตรวจสอบและระบายควัน</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">รายละเอียดเหตุการณ์ (เกิดอะไรขึ้น)</label>
+                                <textarea id="inc_details_what" rows="2" placeholder="อธิบายสภาพเหตุการณ์เบื้องต้น..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">สภาพอากาศ/ปัจจัยภายนอก</label>
+                                <textarea id="inc_details_weather" rows="2" placeholder="ลมแรง / ฝนตก / ทัศนวิสัย..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. ผู้ประสบเหตุ & 7. ความเสี่ยง -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 6. ผู้ประสบเหตุ -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                            <i class="fa-solid fa-users text-lg"></i>
+                            <span>6. ข้อมูลผู้ประสบเหตุ (Casualties / Victims)</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">บาดเจ็บ (คน)</label>
+                                <input type="number" min="0" id="inc_victims_injured" value="0" class="w-full bg-slate-800 border border-slate-700 text-amber-400 font-bold form-input-lg text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">เสียชีวิต (คน)</label>
+                                <input type="number" min="0" id="inc_victims_fatal" value="0" class="w-full bg-slate-800 border border-slate-700 text-rose-500 font-bold form-input-lg text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">สูญหาย (คน)</label>
+                                <input type="number" min="0" id="inc_victims_missing" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">ติดค้าง (คน)</label>
+                                <input type="number" min="0" id="inc_victims_trapped" value="0" class="w-full bg-slate-800 border border-slate-700 text-sky-400 font-bold form-input-lg text-center">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">กลุ่มเปราะบาง (เด็ก / ผู้สูงอายุ / ผู้พิการ / ผู้ป่วยติดเตียง)</label>
+                            <input type="text" id="inc_victims_special" placeholder="ระบุรายละเอียดถ้ามี..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 7. ความเสี่ยงและอันตราย -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 text-amber-400 font-semibold border-b border-slate-800 pb-3">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                            <span>7. ประเมินความเสี่ยงและอันตราย (Hazard Assessment)</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <label class="flex items-center space-x-2 p-2 bg-slate-800/60 rounded-lg cursor-pointer hover:bg-slate-800">
+                                <input type="checkbox" id="inc_risk_gas" class="rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span>มีถังแก๊สหุงต้ม / LPG</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 bg-slate-800/60 rounded-lg cursor-pointer hover:bg-slate-800">
+                                <input type="checkbox" id="inc_risk_hazmat" class="rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span>สารเคมี / วัตถุไวไฟ</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 bg-slate-800/60 rounded-lg cursor-pointer hover:bg-slate-800">
+                                <input type="checkbox" id="inc_risk_power" class="rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span>สายไฟฟ้าแรงสูง / กระแสไฟ</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 bg-slate-800/60 rounded-lg cursor-pointer hover:bg-slate-800">
+                                <input type="checkbox" id="inc_risk_collapse" class="rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span>โครงสร้างอาคารเสี่ยงถล่ม</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <input type="text" id="inc_risk_other" placeholder="อันตรายอื่นๆ เช่น มีอาวุธ / เหตุความไม่สงบ" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. การจัดสรรทรัพยากร & สถานีดับเพลิง -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-red-400 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-truck-fire text-lg"></i>
+                        <span>8. การจัดสรรทรัพยากรและสถานีตอบรับ (Resource Allocation)</span>
+                    </div>
+
+                    <!-- จำนวนยานพาหนะ -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถดับเพลิง</label>
+                            <input type="number" min="0" id="inc_res_firetrucks" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถกระเช้า</label>
+                            <input type="number" min="0" id="inc_res_aerialtrucks" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถบรรทุกน้ำ</label>
+                            <input type="number" min="0" id="inc_res_watertrucks" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถกู้ภัย</label>
+                            <input type="number" min="0" id="inc_res_rescuetrucks" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถพยาบาล EMS</label>
+                            <input type="number" min="0" id="inc_res_ambulance" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถตำรวจ/จราจร</label>
+                            <input type="number" min="0" id="inc_res_police" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">รถการไฟฟ้า</label>
+                            <input type="number" min="0" id="inc_res_pea" value="0" class="w-full bg-slate-800 border border-slate-700 text-slate-100 font-bold form-input-lg text-center">
+                        </div>
+                    </div>
+
+                    <!-- สถานีดับเพลิง 5 แห่ง -->
+                    <div class="space-y-2 pt-2">
+                        <label class="block text-xs font-medium text-slate-400">สถานีดับเพลิงที่ออกปฏิบัติการ (เลือกได้มากกว่า 1 สถานี)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <label class="flex items-center space-x-2 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 cursor-pointer hover:border-red-500/50 transition">
+                                <input type="checkbox" value="ส.ดพ.จอมสุรางค์" class="station-checkbox rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-200">ส.ดพ.จอมสุรางค์</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 cursor-pointer hover:border-red-500/50 transition">
+                                <input type="checkbox" value="ส.ดพ.สุรนารายณ์" class="station-checkbox rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-200">ส.ดพ.สุรนารายณ์</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 cursor-pointer hover:border-red-500/50 transition">
+                                <input type="checkbox" value="ส.ดพ.การเคหะฯ" class="station-checkbox rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-200">ส.ดพ.การเคหะฯ</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 cursor-pointer hover:border-red-500/50 transition">
+                                <input type="checkbox" value="ส.ดพ.ศาลาทอง" class="station-checkbox rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-200">ส.ดพ.ศาลาทอง</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 cursor-pointer hover:border-red-500/50 transition">
+                                <input type="checkbox" value="ส.ดพ.จามจุรี" class="station-checkbox rounded text-red-600 focus:ring-0 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-200">ส.ดพ.จามจุรี</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">หน่วยงานสนับสนุนภายนอกอื่นๆ</label>
+                        <input type="text" id="inc_res_other_depts" placeholder="เช่น กู้ภัยฮุก 31, สว่างเมตตาธรรมสถาบัน, ปภ.จังหวัด" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- 9. ข้อมูลด้านเวลาสากล (1-Click Stamps) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-semibold">
+                            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                            <span>9. ข้อมูลลำดับเวลาสากล (NFPA Operational Time Stamps)</span>
+                        </div>
+                        <span class="text-xs text-slate-400">กดปุ่มเพื่อปั๊มเวลาปัจจุบันทันที</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Call Received</label>
+                            <div class="flex">
+                                <input type="text" id="ts_call_received" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_call_received')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Incident Created</label>
+                            <div class="flex">
+                                <input type="text" id="ts_created" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_created')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Dispatch Time</label>
+                            <div class="flex">
+                                <input type="text" id="ts_dispatch" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-amber-400 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_dispatch')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">En Route</label>
+                            <div class="flex">
+                                <input type="text" id="ts_enroute" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_enroute')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Arrival Time</label>
+                            <div class="flex">
+                                <input type="text" id="ts_arrival" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-emerald-400 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_arrival')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Op Started</label>
+                            <div class="flex">
+                                <input type="text" id="ts_op_start" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_op_start')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Under Control</label>
+                            <div class="flex">
+                                <input type="text" id="ts_under_control" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-sky-400 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_under_control')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Incident Closed</label>
+                            <div class="flex">
+                                <input type="text" id="ts_closed" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_closed')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">In Service / Return</label>
+                            <div class="flex">
+                                <input type="text" id="ts_in_service" placeholder="--:--:--" class="w-full bg-slate-800 border border-slate-700 text-slate-100 text-xs p-2 rounded-l font-mono">
+                                <button type="button" onclick="stampTime('ts_in_service')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 rounded-r text-xs"><i class="fa-solid fa-stopwatch"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10. สรุปผลเหตุการณ์ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2 text-slate-200 font-semibold border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-file-contract text-lg"></i>
+                        <span>10. สรุปผลและหมายเหตุ (Incident Summary)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">สาเหตุเบื้องต้น</label>
+                            <input type="text" id="inc_cause" placeholder="เช่น ไฟฟ้าลัดวงจร / ประมาท" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">ประเมินมูลค่าความเสียหาย (บาท)</label>
+                            <input type="text" id="inc_damage_est" placeholder="ระบุตัวเลข หรือ 'อยู่ระหว่างประเมิน'" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">จำนวนผู้ได้รับผลกระทบรวม (คน)</label>
+                            <input type="text" id="inc_impacted_people" placeholder="เช่น 5 ครัวเรือน / 20 คน" class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">หมายเหตุและรายละเอียดการปฏิบัติงานเพิ่มเติม</label>
+                            <textarea id="inc_summary_notes" rows="3" placeholder="บันทึกข้อสรุปการทำงาน ข้อสังเกตเพิ่มเติม..." class="w-full bg-slate-800 border border-slate-700 text-slate-100 form-input-lg focus:border-red-500 focus:outline-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Bottom Actions Bar -->
+                <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="resetForm()" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-sm transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>ล้างข้อมูล</span>
+                    </button>
+                    <button type="button" onclick="triggerCurrentFormTelegram()" class="w-full sm:w-auto px-5 py-2.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/40 rounded-xl font-semibold text-sm transition flex items-center justify-center space-x-2">
+                        <i class="fa-brands fa-telegram text-sky-400 text-lg"></i>
+                        <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา</span>
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-red-600/30 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>บันทึกข้อมูลเหตุการณ์</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- SECTION 2: Incident List Dashboard Tab -->
+        <div id="tab-dashboard-content" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500"></i>
+                    <input type="text" id="search-input" onkeyup="filterIncidents()" placeholder="ค้นหาเลขเหตุ, ที่อยู่, ผู้แจ้ง..." class="w-full bg-slate-800 border border-slate-700 pl-9 pr-4 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-red-500">
+                </div>
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button onclick="exportJSON()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs flex items-center space-x-1">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Export Data (JSON)</span>
+                    </button>
+                </div>
             </div>
-        <!-- Store current incident id being viewed in modal -->
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800/80 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-700">
+                                <th class="p-4">Incident ID</th>
+                                <th class="p-4">วัน-เวลา</th>
+                                <th class="p-4">ประเภทเหตุ</th>
+                                <th class="p-4">สถานที่เกิดเหตุ</th>
+                                <th class="p-4">ผู้รับแจ้ง</th>
+                                <th class="p-4 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidents-table-body" class="divide-y divide-slate-800 text-xs text-slate-300">
+                            <!-- Incident Rows Dynamically Rendered -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Detailed View & Print -->
+    <div id="incident-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-4 my-8">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-lines text-red-500"></i>
+                    รายละเอียดใบสั่งการเหตุฉุกเฉิน
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="modal-content" class="space-y-4 text-xs text-slate-300">
+                <!-- Content Inserted via JS -->
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-800">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700">ปิด</button>
+                <button onclick="notifyCommandFromModal()" class="px-4 py-2 bg-sky-600/30 text-sky-400 border border-sky-500/40 rounded-xl hover:bg-sky-600/40 font-semibold flex items-center space-x-2">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>ส่ง Telegram</span>
+                </button>
+                <button onclick="window.print()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-500 font-semibold flex items-center space-x-1">
+                    <i class="fa-solid fa-print"></i>
+                    <span>พิมพ์เอกสาร (Print Sheet)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Core Incident Storage
+        let incidents = JSON.parse(localStorage.getItem('korat199_incidents') || '[]');
         let currentModalIncidentId = null;
 
         // Telegram Bot Credentials
         const TELEGRAM_BOT_TOKEN = '9037116565:AAGpFIVcelwk1av1ww_o_24hX1zPM2y7uAs';
         const TELEGRAM_CHAT_ID = '@RadioCenter199_bot';
 
-        // Function to send Telegram Notification using HTML formatting
+        // Page Load Init
+        window.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            generateIncidentId();
+            setDefaultDateTime();
+            renderIncidentsTable();
+        });
+
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toTimeString().split(' ')[0];
+            
+            const dateEl = document.getElementById('current-date-display');
+            const timeEl = document.getElementById('live-clock');
+            if (dateEl) dateEl.innerText = dateStr;
+            if (timeEl) timeEl.innerText = timeStr;
+        }
+
+        // Generate Incident ID (INC-YYYYMMDD-XXX)
+        function generateIncidentId() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const rand = Math.floor(100 + Math.random() * 900);
+            const incIdInput = document.getElementById('inc_id');
+            if (incIdInput) incIdInput.value = `INC-${y}${m}${d}-${rand}`;
+        }
+
+        // Set default datetime input
+        function setDefaultDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const dateTimeInput = document.getElementById('inc_call_datetime');
+            if (dateTimeInput && !dateTimeInput.value) {
+                dateTimeInput.value = now.toISOString().slice(0, 16);
+            }
+        }
+
+        // 1-Click Time Stamp Generator
+        function stampTime(targetId) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.value = timeStr;
+                showToast(`บันทึกเวลา ${timeStr} เรียบร้อยแล้ว`, 'info');
+            }
+        }
+
+        // Switch Tabs
+        function switchTab(tab) {
+            const formTab = document.getElementById('tab-form-content');
+            const dashTab = document.getElementById('tab-dashboard-content');
+            const btnForm = document.getElementById('tab-btn-form');
+            const btnDash = document.getElementById('tab-btn-dashboard');
+
+            if (tab === 'form') {
+                formTab.classList.remove('hidden');
+                dashTab.classList.add('hidden');
+                btnForm.className = 'py-3 px-6 font-semibold text-sm border-b-2 border-red-500 text-red-400 flex items-center space-x-2 transition';
+                btnDash.className = 'py-3 px-6 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition';
+            } else {
+                formTab.classList.add('hidden');
+                dashTab.classList.remove('hidden');
+                btnDash.className = 'py-3 px-6 font-semibold text-sm border-b-2 border-red-500 text-red-400 flex items-center space-x-2 transition';
+                btnForm.className = 'py-3 px-6 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition';
+            }
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            let bgClass = 'bg-emerald-600 text-white';
+            if (type === 'error') bgClass = 'bg-red-600 text-white';
+            if (type === 'info') bgClass = 'bg-sky-600 text-white';
+
+            toast.className = `fixed bottom-5 right-5 z-50 ${bgClass} px-4 py-3 rounded-xl shadow-2xl font-medium text-xs transition-all duration-300 flex items-center space-x-2 border border-white/20`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-xmark' : type === 'info' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // Handle Form Submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const stations = [];
+            document.querySelectorAll('.station-checkbox:checked').forEach(cb => {
+                stations.push(cb.value);
+            });
+
+            const editingId = document.getElementById('editing_id').value;
+            const incidentId = document.getElementById('inc_id').value;
+
+            const incidentData = {
+                id: editingId || 'INC-' + Date.now(),
+                incidentId: incidentId,
+                dispatcherName: document.getElementById('inc_dispatcher').value,
+                callDateTime: document.getElementById('inc_call_datetime').value,
+                channel: document.getElementById('inc_channel').value,
+                callerName: document.getElementById('inc_caller_name').value,
+                callerPhone: document.getElementById('inc_caller_phone').value,
+                callerRel: document.getElementById('inc_caller_rel').value,
+                callerLoc: document.getElementById('inc_caller_loc').value,
+                locationAddress: document.getElementById('inc_address').value,
+                locationLandmark: document.getElementById('inc_landmark').value,
+                buildingType: document.getElementById('inc_building_type').value,
+                accessPoint: document.getElementById('inc_access_point').value,
+                incidentType: document.getElementById('inc_type').value,
+                incidentSeverity: document.getElementById('inc_severity').value,
+                detailsWhat: document.getElementById('inc_details_what').value,
+                detailsOngoing: document.getElementById('inc_details_ongoing').value,
+                detailsWeather: document.getElementById('inc_details_weather').value,
+                victimsInjured: document.getElementById('inc_victims_injured').value || '0',
+                victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
+                victimsMissing: document.getElementById('inc_victims_missing').value || '0',
+                victimsTrapped: document.getElementById('inc_victims_trapped').value || '0',
+                victimsSpecial: document.getElementById('inc_victims_special').value,
+                riskGas: document.getElementById('inc_risk_gas').checked,
+                riskHazmat: document.getElementById('inc_risk_hazmat').checked,
+                riskPower: document.getElementById('inc_risk_power').checked,
+                riskCollapse: document.getElementById('inc_risk_collapse').checked,
+                riskOther: document.getElementById('inc_risk_other').value,
+                resFireTrucks: document.getElementById('inc_res_firetrucks').value || '0',
+                resAerialTrucks: document.getElementById('inc_res_aerialtrucks').value || '0',
+                resWaterTrucks: document.getElementById('inc_res_watertrucks').value || '0',
+                resRescueTrucks: document.getElementById('inc_res_rescuetrucks').value || '0',
+                resAmbulance: document.getElementById('inc_res_ambulance').value || '0',
+                resPolice: document.getElementById('inc_res_police').value || '0',
+                resPea: document.getElementById('inc_res_pea').value || '0',
+                selectedStations: stations,
+                resOtherDepts: document.getElementById('inc_res_other_depts').value,
+                callReceivedTime: document.getElementById('ts_call_received').value,
+                incidentCreatedTime: document.getElementById('ts_created').value,
+                dispatchTime: document.getElementById('ts_dispatch').value,
+                enrouteTime: document.getElementById('ts_enroute').value,
+                arrivalTime: document.getElementById('ts_arrival').value,
+                opStartTime: document.getElementById('ts_op_start').value,
+                underControlTime: document.getElementById('ts_under_control').value,
+                closedTime: document.getElementById('ts_closed').value,
+                inServiceTime: document.getElementById('ts_in_service').value,
+                cause: document.getElementById('inc_cause').value,
+                damageEst: document.getElementById('inc_damage_est').value,
+                impactedPeople: document.getElementById('inc_impacted_people').value,
+                summaryNotes: document.getElementById('inc_summary_notes').value
+            };
+
+            if (editingId) {
+                const idx = incidents.findIndex(item => item.id === editingId);
+                if (idx !== -1) incidents[idx] = incidentData;
+            } else {
+                incidents.unshift(incidentData);
+            }
+
+            // Save to LocalStorage
+            localStorage.setItem('korat199_incidents', JSON.stringify(incidents));
+
+            renderIncidentsTable();
+            showToast(editingId ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกเหตุการณ์เรียบร้อยแล้ว', 'success');
+
+            // Send Telegram Notification asynchronously
+            sendTelegramNotification(incidentData.id);
+
+            resetForm();
+        }
+
+        // Telegram Notification API with Timeout & Catch
         async function sendTelegramNotification(id) {
             const item = incidents.find(inc => inc.id === id);
             if (!item) return;
@@ -48,51 +824,50 @@
 📍 <b>สถานที่เกิดเหตุ:</b> ${item.locationAddress || '-'}
 🏢 <b>จุดสังเกต/อาคาร:</b> ${item.locationLandmark || '-'}
 
-🚒 <b>ทรัพยากร/ยานพาหนะ:</b>
-• รถดับเพลิง: ${item.resFireTrucks || 0} คัน
-• รถกระเช้า: ${item.resAerialTrucks || 0} คัน
-• รถบรรทุกน้ำ: ${item.resWaterTrucks || 0} คัน
-• รถกู้ภัย: ${item.resRescueTrucks || 0} คัน
-• รถพยาบาล EMS: ${item.resAmbulance || 0} คัน
+🚒 <b>ทรัพยากรที่ส่ง:</b>
+• รถดับเพลิง: ${item.resFireTrucks || 0} คัน | รถกระเช้า: ${item.resAerialTrucks || 0} คัน
+• รถบรรทุกน้ำ: ${item.resWaterTrucks || 0} คัน | รถกู้ภัย: ${item.resRescueTrucks || 0} คัน
+• รถพยาบาล: ${item.resAmbulance || 0} คัน
 🏢 <b>สถานีตอบรับ:</b> ${item.selectedStations && item.selectedStations.length > 0 ? item.selectedStations.join(', ') : 'ยังไม่ระบุ'}
 ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน:</b> ' + item.resOtherDepts : ''}
 
-👤 <b>ผู้แจ้งเหตุ:</b> ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
-👨‍🚒 <b>ผู้รับแจ้ง/เจ้าหน้าที่:</b> ${item.dispatcherName}
+👤 <b>ผู้แจ้ง:</b> ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
+👨‍🚒 <b>ผู้รับแจ้ง:</b> ${item.dispatcherName}
 ----------------------------------------
 ⏱️ <b>เวลาสั่งการ (Dispatch):</b> ${item.dispatchTime || '-'}
 ⏱️ <b>เวลาถึงที่เกิดเหตุ (Arrival):</b> ${item.arrivalTime || '-'}`;
 
             try {
-                showToast('กำลังส่งข้อมูลแจ้งผู้บังคับบัญชาไปยัง Telegram...', 'info');
-                
+                showToast('กำลังส่งข้อมูลไปยัง Telegram...', 'info');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 sec timeout
+
                 const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
                     body: JSON.stringify({
                         chat_id: TELEGRAM_CHAT_ID,
                         text: text,
                         parse_mode: 'HTML'
                     })
                 });
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
-
                 if (response.ok && data.ok) {
-                    showToast('ส่งข้อมูลแจ้งเตือนไปยัง Telegram สำเร็จ! (@RadioCenter199_bot)', 'success');
+                    showToast('ส่งข้อมูล Telegram สำเร็จ!', 'success');
                 } else {
-                    throw new Error(data.description || 'ไม่สามารถส่งข้อความได้');
+                    throw new Error(data.description || 'API Error');
                 }
             } catch (error) {
-                console.error('Telegram API Error:', error);
-                showToast('ไม่สามารถส่งข้อมูล Telegram ได้: ' + error.message, 'error');
+                console.warn('Telegram API Error/Timeout:', error);
+                showToast('ส่ง Telegram อัตโนมัติไม่สำเร็จ (อาจถูกบล็อกโดย Network)', 'info');
             }
         }
 
-        // Trigger Telegram notification manually from active form input before/during saving
+        // Trigger Telegram manually from active form inputs
         function triggerCurrentFormTelegram() {
             const type = document.getElementById('inc_type').value;
             const address = document.getElementById('inc_address').value;
@@ -101,7 +876,7 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
             const dispatcher = document.getElementById('inc_dispatcher').value;
 
             if (!type || !address) {
-                showToast('กรุณากรอกประเภทเหตุและสถานที่เกิดเหตุก่อนส่งแจ้งเตือน', 'error');
+                showToast('กรุณากรอกประเภทเหตุและสถานที่เกิดเหตุก่อนส่ง', 'error');
                 return;
             }
 
@@ -118,9 +893,7 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
 
             fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHAT_ID,
                     text: text,
@@ -129,273 +902,193 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
             })
             .then(res => res.json())
             .then(data => {
-                if (data.ok) {
-                    showToast('ส่งข้อมูลแจ้งเตือนผู้บังคับบัญชาเรียบร้อยแล้ว!', 'success');
-                } else {
-                    showToast('ส่งข้อมูลไม่สำเร็จ: ' + data.description, 'error');
-                }
+                if (data.ok) showToast('ส่งข้อมูลแจ้งผู้บังคับบัญชาเรียบร้อยแล้ว!', 'success');
+                else showToast('ส่งไม่สำเร็จ: ' + data.description, 'error');
             })
-            .catch(err => showToast('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message, 'error'));
+            .catch(err => showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Telegram', 'error'));
         }
 
-        // Toast message system
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            let bgClass = 'bg-emerald-600 text-white';
-            if (type === 'error') bgClass = 'bg-red-600 text-white';
-            if (type === 'info') bgClass = 'bg-blue-600 text-white';
+        // Render Incidents Table
+        function renderIncidentsTable(filteredData = null) {
+            const tbody = document.getElementById('incidents-table-body');
+            const badge = document.getElementById('incident-count-badge');
+            const data = filteredData || incidents;
 
-            toast.className = `fixed bottom-5 right-5 z-50 ${bgClass} px-4 py-3 rounded-xl shadow-2xl font-medium text-sm transition-all duration-300 transform translate-y-0 flex items-center space-x-2 border border-white/20`;
-            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'info' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
-            
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
+            if (badge) badge.innerText = data.length;
+            if (!tbody) return;
 
-        // Save incident form submit handler
-        document.getElementById('incident-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Collect selected stations
-            const stations = [];
-            document.querySelectorAll('.station-checkbox:checked').forEach(cb => {
-                stations.push(cb.value);
-            });
-
-            const editingId = document.getElementById('editing_id').value;
-            const incidentId = document.getElementById('inc_id').value;
-
-            const incidentData = {
-                id: editingId || 'INC-' + Date.now(),
-                incidentId: incidentId,
-                dispatcherName: document.getElementById('inc_dispatcher').value,
-                callDateTime: document.getElementById('inc_call_datetime').value,
-                channel: document.getElementById('inc_channel').value,
-                callerName: document.getElementById('inc_caller_name').value,
-                callerPhone: document.getElementById('inc_caller_phone').value,
-                callerRel: document.getElementById('inc_caller_rel').value,
-                callerLoc: document.getElementById('inc_caller_loc').value,
-                locationAddress: document.getElementById('inc_address').value,
-                locationLandmark: document.getElementById('inc_landmark').value,
-                buildingType: document.getElementById('inc_building_type').value,
-                accessPoint: document.getElementById('inc_access_point').value,
-                incidentType: document.getElementById('inc_type').value,
-                incidentSeverity: document.getElementById('inc_severity').value,
-                detailsWhat: document.getElementById('inc_details_what').value,
-                detailsWhen: document.getElementById('inc_details_when').value,
-                detailsOngoing: document.getElementById('inc_details_ongoing').value,
-                detailsWeather: document.getElementById('inc_details_weather').value,
-                victimsInjured: document.getElementById('inc_victims_injured').value || '0',
-                victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
-                victimsMissing: document.getElementById('inc_victims_missing').value || '0',
-                victimsTrapped: document.getElementById('inc_victims_trapped').value || '0',
-                victimsSpecial: document.getElementById('inc_victims_special').value,
-                riskGas: document.getElementById('inc_risk_gas').checked,
-                riskHazmat: document.getElementById('inc_risk_hazmat').checked,
-                riskPower: document.getElementById('inc_risk_power').checked,
-                riskCollapse: document.getElementById('inc_risk_collapse').checked,
-                riskWeapon: document.getElementById('inc_risk_weapon').checked,
-                riskOther: document.getElementById('inc_risk_other').value,
-                resFireTrucks: document.getElementById('inc_res_firetrucks').value || '0',
-                resAerialTrucks: document.getElementById('inc_res_aerialtrucks').value || '0',
-                resWaterTrucks: document.getElementById('inc_res_watertrucks').value || '0',
-                resRescueTrucks: document.getElementById('inc_res_rescuetrucks').value || '0',
-                resAmbulance: document.getElementById('inc_res_ambulance').value || '0',
-                resPolice: document.getElementById('inc_res_police').value || '0',
-                resPea: document.getElementById('inc_res_pea').value || '0',
-                selectedStations: stations,
-                resOtherDepts: document.getElementById('inc_res_other_depts').value,
-                callReceivedTime: document.getElementById('ts_call_received').value,
-                incidentCreatedTime: document.getElementById('ts_created').value,
-                dispatchTime: document.getElementById('ts_dispatch').value,
-                enrouteTime: document.getElementById('ts_enroute').value,
-                arrivalTime: document.getElementById('ts_arrival').value,
-                opStartTime: document.getElementById('ts_op_start').value,
-                underControlTime: document.getElementById('ts_under_control').value,
-                closedTime: document.getElementById('ts_closed').value,
-                inServiceTime: document.getElementById('ts_in_service').value,
-                cause: document.getElementById('inc_cause').value,
-                damageEst: document.getElementById('inc_damage_est').value,
-                impactedPeople: document.getElementById('inc_impacted_people').value,
-                agencyUnits: document.getElementById('inc_agency_units').value,
-                summaryNotes: document.getElementById('inc_summary_notes').value
-            };
-
-            if (editingId) {
-                const idx = incidents.findIndex(item => item.id === editingId);
-                if (idx !== -1) {
-                    incidents[idx] = incidentData;
-                }
-            } else {
-                incidents.unshift(incidentData);
-            }
-
-            renderIncidentsTable();
-            showToast(editingId ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกเหตุการณ์เรียบร้อยแล้ว', 'success');
-
-            // Automatically push Telegram notification to Telegram bot
-            sendTelegramNotification(incidentData.id);
-
-            resetForm();
-        });
-
-        // Notify Command from Modal via Telegram
-        function notifyCommandFromModal() {
-            if (currentModalIncidentId) {
-                sendTelegramNotification(currentModalIncidentId);
-            }
-        }
-
-        // Trigger ntfy manually from active form input before saving
-        function triggerCurrentFormNtfy() {
-            const type = document.getElementById('inc_type').value;
-            const address = document.getElementById('inc_address').value;
-            const caller = document.getElementById('inc_caller_name').value;
-            const phone = document.getElementById('inc_caller_phone').value;
-            const dispatcher = document.getElementById('inc_dispatcher').value;
-
-            if (!type || !address) {
-                showToast('กรุณากรอกประเภทเหตุและสถานที่เกิดเหตุก่อนส่งแจ้งเตือน', 'error');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">ไม่พบรายการบันทึกเหตุการณ์</td></tr>`;
                 return;
             }
 
-            const title = `🚨 [แจ้งเตือนเหตุใหม่] ${type}`;
-            const body = 
-`📍 สถานที่: ${address}
-👤 ผู้แจ้ง: ${caller || '-'} (โทร ${phone || '-'})
-👨‍🚒 เจ้าหน้าที่รับแจ้ง: ${dispatcher}
-⏱️ เวลา: ${new Date().toLocaleString('th-TH')}`;
-
-            fetch('https://ntfy.sh/koratfire-command-199', {
-                method: 'POST',
-                headers: {
-                    'Title': encodeURIComponent(title),
-                    'Priority': '4',
-                    'Tags': 'fire_engine,korat'
-                },
-                body: body
-            })
-            .then(res => {
-                if (res.ok) {
-                    showToast('ส่งข้อมูลแจ้งเตือนผู้บังคับบัญชาสำเร็จ!', 'success');
-                } else {
-                    showToast('ส่งข้อมูลแจ้งเตือนไม่สำเร็จ', 'error');
-                }
-            })
-            .catch(err => showToast('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message, 'error'));
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-4 font-mono text-amber-400 font-bold">${escapeHtml(item.incidentId)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(item.callDateTime || '-')}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                            ${escapeHtml(item.incidentType)}
+                        </span>
+                    </td>
+                    <td class="p-4 max-w-xs truncate" title="${escapeHtml(item.locationAddress)}">${escapeHtml(item.locationAddress || '-')}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(item.dispatcherName || '-')}</td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="viewIncidentDetail('${item.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs" title="ดูรายละเอียด"><i class="fa-solid fa-eye"></i></button>
+                        <button onclick="editIncident('${item.id}')" class="p-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-xs" title="แก้ไข"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteIncident('${item.id}')" class="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-xs" title="ลบ"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // Toast message system
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            let bgClass = 'bg-emerald-600 text-white';
-            if (type === 'error') bgClass = 'bg-red-600 text-white';
-            if (type === 'info') bgClass = 'bg-blue-600 text-white';
+        // Filter Incidents Search
+        function filterIncidents() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = incidents.filter(item => 
+                (item.incidentId && item.incidentId.toLowerCase().includes(query)) ||
+                (item.incidentType && item.incidentType.toLowerCase().includes(query)) ||
+                (item.locationAddress && item.locationAddress.toLowerCase().includes(query)) ||
+                (item.callerName && item.callerName.toLowerCase().includes(query))
+            );
+            renderIncidentsTable(filtered);
+        }
 
-            toast.className = `fixed bottom-5 right-5 z-50 ${bgClass} px-4 py-3 rounded-xl shadow-2xl font-medium text-sm transition-all duration-300 transform translate-y-0 flex items-center space-x-2 border border-white/20`;
-            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'info' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
+        // View Detail Modal
+        function viewIncidentDetail(id) {
+            const item = incidents.find(inc => inc.id === id);
+            if (!item) return;
+
+            currentModalIncidentId = id;
+            const container = document.getElementById('modal-content');
+            container.innerHTML = `
+                <div class="grid grid-cols-2 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div><span class="text-slate-500">เลขที่เหตุการณ์:</span> <strong class="text-amber-400 font-mono">${escapeHtml(item.incidentId)}</strong></div>
+                    <div><span class="text-slate-500">วัน-เวลารับแจ้ง:</span> ${escapeHtml(item.callDateTime || '-')}</div>
+                    <div><span class="text-slate-500">ประเภทเหตุ:</span> <strong class="text-red-400">${escapeHtml(item.incidentType)}</strong></div>
+                    <div><span class="text-slate-500">เจ้าหน้าที่รับแจ้ง:</span> ${escapeHtml(item.dispatcherName)}</div>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-slate-200">สถานที่เกิดเหตุ</h4>
+                    <p><strong>ที่อยู่:</strong> ${escapeHtml(item.locationAddress || '-')}</p>
+                    <p><strong>จุดสังเกต:</strong> ${escapeHtml(item.locationLandmark || '-')}</p>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-slate-200">ทรัพยากรและสถานีตอบรับ</h4>
+                    <p><strong>รถออกปฏิบัติการ:</strong> ดับเพลิง (${item.resFireTrucks}) / กระเช้า (${item.resAerialTrucks}) / บรรทุกน้ำ (${item.resWaterTrucks}) / กู้ภัย (${item.resRescueTrucks}) / EMS (${item.resAmbulance})</p>
+                    <p><strong>สถานีตอบรับ:</strong> ${item.selectedStations && item.selectedStations.length > 0 ? item.selectedStations.join(', ') : 'ไม่มี'}</p>
+                    ${item.resOtherDepts ? `<p><strong>หน่วยสนับสนุน:</strong> ${escapeHtml(item.resOtherDepts)}</p>` : ''}
+                </div>
+            `;
+
+            document.getElementById('incident-modal').classList.remove('hidden');
+            document.getElementById('incident-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('incident-modal').classList.add('hidden');
+            document.getElementById('incident-modal').classList.remove('flex');
+        }
+
+        function notifyCommandFromModal() {
+            if (currentModalIncidentId) sendTelegramNotification(currentModalIncidentId);
+        }
+
+        // Edit Incident
+        function editIncident(id) {
+            const item = incidents.find(inc => inc.id === id);
+            if (!item) return;
+
+            document.getElementById('editing_id').value = item.id;
+            document.getElementById('inc_id').value = item.incidentId;
+            document.getElementById('inc_dispatcher').value = item.dispatcherName;
+            document.getElementById('inc_call_datetime').value = item.callDateTime;
+            document.getElementById('inc_channel').value = item.channel;
+            document.getElementById('inc_caller_name').value = item.callerName;
+            document.getElementById('inc_caller_phone').value = item.callerPhone;
+            document.getElementById('inc_caller_rel').value = item.callerRel;
+            document.getElementById('inc_caller_loc').value = item.callerLoc;
+            document.getElementById('inc_address').value = item.locationAddress;
+            document.getElementById('inc_landmark').value = item.locationLandmark;
+            document.getElementById('inc_building_type').value = item.buildingType;
+            document.getElementById('inc_access_point').value = item.accessPoint;
+            document.getElementById('inc_type').value = item.incidentType;
+            document.getElementById('inc_severity').value = item.incidentSeverity;
+            document.getElementById('inc_details_what').value = item.detailsWhat;
+            document.getElementById('inc_details_ongoing').value = item.detailsOngoing;
+            document.getElementById('inc_details_weather').value = item.detailsWeather;
+            document.getElementById('inc_victims_injured').value = item.victimsInjured;
+            document.getElementById('inc_victims_fatal').value = item.victimsFatal;
+            document.getElementById('inc_victims_missing').value = item.victimsMissing;
+            document.getElementById('inc_victims_trapped').value = item.victimsTrapped;
+            document.getElementById('inc_victims_special').value = item.victimsSpecial;
             
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
+            document.getElementById('inc_risk_gas').checked = !!item.riskGas;
+            document.getElementById('inc_risk_hazmat').checked = !!item.riskHazmat;
+            document.getElementById('inc_risk_power').checked = !!item.riskPower;
+            document.getElementById('inc_risk_collapse').checked = !!item.riskCollapse;
+            document.getElementById('inc_risk_other').value = item.riskOther || '';
 
-        // Save incident form submit handler
-        document.getElementById('incident-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+            document.getElementById('inc_res_firetrucks').value = item.resFireTrucks;
+            document.getElementById('inc_res_aerialtrucks').value = item.resAerialTrucks;
+            document.getElementById('inc_res_watertrucks').value = item.resWaterTrucks;
+            document.getElementById('inc_res_rescuetrucks').value = item.resRescueTrucks;
+            document.getElementById('inc_res_ambulance').value = item.resAmbulance;
+            document.getElementById('inc_res_police').value = item.resPolice;
+            document.getElementById('inc_res_pea').value = item.resPea;
 
-            // Collect selected stations
-            const stations = [];
-            document.querySelectorAll('.station-checkbox:checked').forEach(cb => {
-                stations.push(cb.value);
+            document.querySelectorAll('.station-checkbox').forEach(cb => {
+                cb.checked = item.selectedStations && item.selectedStations.includes(cb.value);
             });
 
-            const editingId = document.getElementById('editing_id').value;
-            const incidentId = document.getElementById('inc_id').value;
+            document.getElementById('inc_res_other_depts').value = item.resOtherDepts || '';
+            document.getElementById('ts_call_received').value = item.callReceivedTime || '';
+            document.getElementById('ts_created').value = item.incidentCreatedTime || '';
+            document.getElementById('ts_dispatch').value = item.dispatchTime || '';
+            document.getElementById('ts_enroute').value = item.enrouteTime || '';
+            document.getElementById('ts_arrival').value = item.arrivalTime || '';
+            document.getElementById('ts_op_start').value = item.opStartTime || '';
+            document.getElementById('ts_under_control').value = item.underControlTime || '';
+            document.getElementById('ts_closed').value = item.closedTime || '';
+            document.getElementById('ts_in_service').value = item.inServiceTime || '';
+            document.getElementById('inc_cause').value = item.cause || '';
+            document.getElementById('inc_damage_est').value = item.damageEst || '';
+            document.getElementById('inc_impacted_people').value = item.impactedPeople || '';
+            document.getElementById('inc_summary_notes').value = item.summaryNotes || '';
 
-            const incidentData = {
-                id: editingId || 'INC-' + Date.now(),
-                incidentId: incidentId,
-                dispatcherName: document.getElementById('inc_dispatcher').value,
-                callDateTime: document.getElementById('inc_call_datetime').value,
-                channel: document.getElementById('inc_channel').value,
-                callerName: document.getElementById('inc_caller_name').value,
-                callerPhone: document.getElementById('inc_caller_phone').value,
-                callerRel: document.getElementById('inc_caller_rel').value,
-                callerLoc: document.getElementById('inc_caller_loc').value,
-                locationAddress: document.getElementById('inc_address').value,
-                locationLandmark: document.getElementById('inc_landmark').value,
-                buildingType: document.getElementById('inc_building_type').value,
-                accessPoint: document.getElementById('inc_access_point').value,
-                incidentType: document.getElementById('inc_type').value,
-                incidentSeverity: document.getElementById('inc_severity').value,
-                detailsWhat: document.getElementById('inc_details_what').value,
-                detailsWhen: document.getElementById('inc_details_when').value,
-                detailsOngoing: document.getElementById('inc_details_ongoing').value,
-                detailsWeather: document.getElementById('inc_details_weather').value,
-                victimsInjured: document.getElementById('inc_victims_injured').value || '0',
-                victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
-                victimsMissing: document.getElementById('inc_victims_missing').value || '0',
-                victimsTrapped: document.getElementById('inc_victims_trapped').value || '0',
-                victimsSpecial: document.getElementById('inc_victims_special').value,
-                riskGas: document.getElementById('inc_risk_gas').checked,
-                riskHazmat: document.getElementById('inc_risk_hazmat').checked,
-                riskPower: document.getElementById('inc_risk_power').checked,
-                riskCollapse: document.getElementById('inc_risk_collapse').checked,
-                riskWeapon: document.getElementById('inc_risk_weapon').checked,
-                riskOther: document.getElementById('inc_risk_other').value,
-                resFireTrucks: document.getElementById('inc_res_firetrucks').value || '0',
-                resAerialTrucks: document.getElementById('inc_res_aerialtrucks').value || '0',
-                resWaterTrucks: document.getElementById('inc_res_watertrucks').value || '0',
-                resRescueTrucks: document.getElementById('inc_res_rescuetrucks').value || '0',
-                resAmbulance: document.getElementById('inc_res_ambulance').value || '0',
-                resPolice: document.getElementById('inc_res_police').value || '0',
-                resPea: document.getElementById('inc_res_pea').value || '0',
-                selectedStations: stations,
-                resOtherDepts: document.getElementById('inc_res_other_depts').value,
-                callReceivedTime: document.getElementById('ts_call_received').value,
-                incidentCreatedTime: document.getElementById('ts_created').value,
-                dispatchTime: document.getElementById('ts_dispatch').value,
-                enrouteTime: document.getElementById('ts_enroute').value,
-                arrivalTime: document.getElementById('ts_arrival').value,
-                opStartTime: document.getElementById('ts_op_start').value,
-                underControlTime: document.getElementById('ts_under_control').value,
-                closedTime: document.getElementById('ts_closed').value,
-                inServiceTime: document.getElementById('ts_in_service').value,
-                cause: document.getElementById('inc_cause').value,
-                damageEst: document.getElementById('inc_damage_est').value,
-                impactedPeople: document.getElementById('inc_impacted_people').value,
-                agencyUnits: document.getElementById('inc_agency_units').value,
-                summaryNotes: document.getElementById('inc_summary_notes').value
-            };
+            switchTab('form');
+            showToast('ดึงข้อมูลเหตุการณ์มาที่ฟอร์มแก้ไขเรียบร้อยแล้ว', 'info');
+        }
 
-            if (editingId) {
-                const idx = incidents.findIndex(item => item.id === editingId);
-                if (idx !== -1) {
-                    incidents[idx] = incidentData;
-                }
-            } else {
-                incidents.unshift(incidentData);
-            }
-
-            renderIncidentsTable();
-            showToast(editingId ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกเหตุการณ์เรียบร้อยแล้ว', 'success');
-
-            // Automatically push ntfy notification to command topic
-            sendNtfyNotification(incidentData.id);
-
-            resetForm();
-        });
-
-        // Notify Command from Modal
-        function notifyCommandFromModal() {
-            if (currentModalIncidentId) {
-                sendNtfyNotification(currentModalIncidentId);
+        // Delete Incident
+        function deleteIncident(id) {
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการเหตุการณ์นี้?')) {
+                incidents = incidents.filter(item => item.id !== id);
+                localStorage.setItem('korat199_incidents', JSON.stringify(incidents));
+                renderIncidentsTable();
+                showToast('ลบรายการเหตุการณ์เรียบร้อยแล้ว', 'success');
             }
         }
-<!-- ... existing code ... -->
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('incident-form').reset();
+            document.getElementById('editing_id').value = '';
+            generateIncidentId();
+            setDefaultDateTime();
+            showToast('ล้างข้อมูลฟอร์มเรียบร้อยแล้ว', 'info');
+        }
+
+        // Export Data JSON
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(incidents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `korat199_incidents_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+    </script>
+</body>
+</html>
