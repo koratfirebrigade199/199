@@ -626,9 +626,9 @@
         let incidents = JSON.parse(localStorage.getItem('korat199_incidents') || '[]');
         let currentModalIncidentId = null;
 
-        // Telegram Bot Credentials
+        // Telegram Bot Credentials (Updated Target ID to -1004345443426)
         const TELEGRAM_BOT_TOKEN = '9037116565:AAGpFIVcelwk1av1ww_o_24hX1zPM2y7uAs';
-        const TELEGRAM_CHAT_ID = '@RadioCenter199_bot';
+        const TELEGRAM_CHAT_ID = '-1004345443426';
 
         // Page Load Init
         window.addEventListener('DOMContentLoaded', () => {
@@ -809,38 +809,43 @@
             resetForm();
         }
 
-        // Telegram Notification API with Timeout & Catch
+        // Telegram Notification API with Timeout & Catch & Fallback
         async function sendTelegramNotification(id) {
             const item = incidents.find(inc => inc.id === id);
             if (!item) return;
 
             const text = 
-`🚨 <b>[รายงานเหตุฉุกเฉิน 199 โคราช]</b> 🚨
+`🚨 *[รายงานเหตุฉุกเฉิน 199 โคราช]* 🚨
 ----------------------------------------
-<b>เลขที่เหตุการณ์:</b> ${item.incidentId}
-<b>ประเภทเหตุ:</b> ${item.incidentType} (${item.incidentSeverity || 'ปกติ'})
-<b>วันที่-เวลารับแจ้ง:</b> ${item.callDateTime || '-'}
+*เลขที่เหตุการณ์:* ${item.incidentId}
+*ประเภทเหตุ:* ${item.incidentType} (${item.incidentSeverity || 'ปกติ'})
+*วันที่-เวลารับแจ้ง:* ${item.callDateTime || '-'}
 
-📍 <b>สถานที่เกิดเหตุ:</b> ${item.locationAddress || '-'}
-🏢 <b>จุดสังเกต/อาคาร:</b> ${item.locationLandmark || '-'}
+📍 *สถานที่เกิดเหตุ:* ${item.locationAddress || '-'}
+🏢 *จุดสังเกต/อาคาร:* ${item.locationLandmark || '-'}
 
-🚒 <b>ทรัพยากรที่ส่ง:</b>
+🚒 *ทรัพยากรที่ส่ง:*
 • รถดับเพลิง: ${item.resFireTrucks || 0} คัน | รถกระเช้า: ${item.resAerialTrucks || 0} คัน
 • รถบรรทุกน้ำ: ${item.resWaterTrucks || 0} คัน | รถกู้ภัย: ${item.resRescueTrucks || 0} คัน
 • รถพยาบาล: ${item.resAmbulance || 0} คัน
-🏢 <b>สถานีตอบรับ:</b> ${item.selectedStations && item.selectedStations.length > 0 ? item.selectedStations.join(', ') : 'ยังไม่ระบุ'}
-${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน:</b> ' + item.resOtherDepts : ''}
+🏢 *สถานีตอบรับ:* ${item.selectedStations && item.selectedStations.length > 0 ? item.selectedStations.join(', ') : 'ยังไม่ระบุ'}
+${item.resOtherDepts ? '🤝 *หน่วยงานสนับสนุน:* ' + item.resOtherDepts : ''}
 
-👤 <b>ผู้แจ้ง:</b> ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
-👨‍🚒 <b>ผู้รับแจ้ง:</b> ${item.dispatcherName}
+👤 *ผู้แจ้ง:* ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
+👨‍🚒 *ผู้รับแจ้ง:* ${item.dispatcherName}
 ----------------------------------------
-⏱️ <b>เวลาสั่งการ (Dispatch):</b> ${item.dispatchTime || '-'}
-⏱️ <b>เวลาถึงที่เกิดเหตุ (Arrival):</b> ${item.arrivalTime || '-'}`;
+⏱️ *เวลาสั่งการ:* ${item.dispatchTime || '-'}
+⏱️ *เวลาถึงที่เกิดเหตุ:* ${item.arrivalTime || '-'}`;
+
+            if (!TELEGRAM_CHAT_ID || TELEGRAM_CHAT_ID.startsWith('@')) {
+                openTelegramFallback(text);
+                return;
+            }
 
             try {
                 showToast('กำลังส่งข้อมูลไปยัง Telegram...', 'info');
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 sec timeout
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
 
                 const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
                 const response = await fetch(url, {
@@ -850,7 +855,7 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
                     body: JSON.stringify({
                         chat_id: TELEGRAM_CHAT_ID,
                         text: text,
-                        parse_mode: 'HTML'
+                        parse_mode: 'Markdown'
                     })
                 });
                 clearTimeout(timeoutId);
@@ -859,11 +864,12 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
                 if (response.ok && data.ok) {
                     showToast('ส่งข้อมูล Telegram สำเร็จ!', 'success');
                 } else {
-                    throw new Error(data.description || 'API Error');
+                    console.warn('Telegram API Response Error:', data);
+                    openTelegramFallback(text);
                 }
             } catch (error) {
-                console.warn('Telegram API Error/Timeout:', error);
-                showToast('ส่ง Telegram อัตโนมัติไม่สำเร็จ (อาจถูกบล็อกโดย Network)', 'info');
+                console.warn('Telegram Fetch Error:', error);
+                openTelegramFallback(text);
             }
         }
 
@@ -881,13 +887,18 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
             }
 
             const text = 
-`🚨 <b>[แจ้งเตือนเหตุฉุกเฉินรับแจ้งใหม่]</b> 🚨
+`🚨 *[แจ้งเตือนเหตุฉุกเฉินรับแจ้งใหม่]* 🚨
 ----------------------------------------
-<b>ประเภทเหตุ:</b> ${type}
-📍 <b>สถานที่:</b> ${address}
-👤 <b>ผู้แจ้ง:</b> ${caller || '-'} (โทร ${phone || '-'})
-👨‍🚒 <b>เจ้าหน้าที่ผู้รับแจ้ง:</b> ${dispatcher}
-⏱️ <b>เวลา:</b> ${new Date().toLocaleString('th-TH')}`;
+*ประเภทเหตุ:* ${type}
+📍 *สถานที่:* ${address}
+👤 *ผู้แจ้ง:* ${caller || '-'} (โทร ${phone || '-'})
+👨‍🚒 *เจ้าหน้าที่ผู้รับแจ้ง:* ${dispatcher}
+⏱️ *เวลา:* ${new Date().toLocaleString('th-TH')}`;
+
+            if (!TELEGRAM_CHAT_ID || TELEGRAM_CHAT_ID.startsWith('@')) {
+                openTelegramFallback(text);
+                return;
+            }
 
             showToast('กำลังส่งข้อมูลไปยัง Telegram...', 'info');
 
@@ -897,15 +908,30 @@ ${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHAT_ID,
                     text: text,
-                    parse_mode: 'HTML'
+                    parse_mode: 'Markdown'
                 })
             })
             .then(res => res.json())
             .then(data => {
-                if (data.ok) showToast('ส่งข้อมูลแจ้งผู้บังคับบัญชาเรียบร้อยแล้ว!', 'success');
-                else showToast('ส่งไม่สำเร็จ: ' + data.description, 'error');
+                if (data.ok) {
+                    showToast('ส่งข้อมูลแจ้งผู้บังคับบัญชาเรียบร้อยแล้ว!', 'success');
+                } else {
+                    console.warn('Telegram API Error:', data);
+                    openTelegramFallback(text);
+                }
             })
-            .catch(err => showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Telegram', 'error'));
+            .catch(err => {
+                console.warn('Telegram Catch Error:', err);
+                openTelegramFallback(text);
+            });
+        }
+
+        // Fallback helper to open direct Telegram link with pre-filled message
+        function openTelegramFallback(textMessage) {
+            showToast('เปิดแอป Telegram เพื่อส่งข้อความด่วน...', 'info');
+            const encodedText = encodeURIComponent(textMessage);
+            const tgShareUrl = `https://t.me/share/url?url=&text=${encodedText}`;
+            window.open(tgShareUrl, '_blank');
         }
 
         // Render Incidents Table
