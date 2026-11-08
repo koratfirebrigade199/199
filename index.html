@@ -1,1068 +1,401 @@
-<!DOCTYPE html>
-<html lang="th" class="h-full bg-slate-900 text-slate-100">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบรับแจ้งและสั่งการเหตุฉุกเฉิน 199 เทศบาลนครนครราชสีมา (ECC/PSAP)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Prompt & Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- html2pdf.js for Generating PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Prompt', 'Inter', 'sans-serif'],
-                        mono: ['monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            red: '#E53E3E',
-                            darkRed: '#9B2C2C',
-                            orange: '#DD6B20',
-                            blue: '#005691',
-                            darkBlue: '#0A192F',
-                            cardBg: '#1E293B',
-                            border: '#334155'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Prompt', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
-        /* Input & Textarea Modern Focus & Sizing */
-        input[type="text"], input[type="tel"], input[type="number"], input[type="datetime-local"], select, textarea {
-            font-size: 0.875rem !important; /* 14px for better readability */
-            transition: all 0.2s ease-in-out;
-        }
-        input:focus, select:focus, textarea:focus {
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-        }
-    </style>
-</head>
-<body class="h-full flex flex-col overflow-hidden bg-slate-950 text-slate-100">
-
-    <!-- HEADER / NAVIGATION BAR -->
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex flex-wrap justify-between items-center shrink-0 z-10 shadow-lg no-print">
-        <div class="flex items-center space-x-3">
-            <div class="w-11 h-11 bg-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-900/50 ring-2 ring-red-400">
-                <i class="fa-solid fa-truck-fire text-2xl text-white"></i>
-            </div>
-            <div>
-                <div class="flex items-center space-x-2">
-                    <h1 class="font-bold text-lg leading-tight tracking-wide text-white">ศูนย์รับแจ้งเหตุฉุกเฉิน 199 เทศบาลนครนครราชสีมา</h1>
-                    <span class="bg-red-500/20 text-red-400 border border-red-500/40 text-xs px-2 py-0.5 rounded font-mono font-semibold">ECC/PSAP Standard</span>
-                </div>
-                <p class="text-xs text-slate-400">Nakhon Ratchasima City Municipality Emergency Communications & Dispatch System (NFPA Aligned)</p>
-            </div>
-        </div>
-
-        <!-- CENTER: Real-Time Clock & Status -->
-        <div class="hidden lg:flex items-center space-x-6 bg-slate-950 px-4 py-1.5 rounded-lg border border-slate-800">
+<!-- ... existing code ... -->
+            <!-- Navigation -->
             <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-xs text-slate-400 font-medium">สถานะศูนย์: <span class="text-emerald-400 font-semibold">พร้อมรับแจ้ง (ONLINE)</span></span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+                    ระบบพร้อมใช้งาน (Telegram Bot Active)
+                </span>
             </div>
-            <div class="h-4 w-[1px] bg-slate-800"></div>
-            <div class="text-right">
-                <div id="live-clock" class="text-lg font-mono font-bold text-amber-400 leading-tight">00:00:00</div>
-                <div id="live-date" class="text-[10px] text-slate-400 font-mono">00 MMMM YYYY</div>
-            </div>
-        </div>
-
-        <!-- RIGHT: Action Buttons -->
-        <div class="flex items-center space-x-2 mt-2 sm:mt-0">
-            <button onclick="switchTab('form')" id="btn-tab-form" class="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-medium text-sm rounded-lg transition shadow flex items-center space-x-1.5">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span>สร้างเหตุใหม่</span>
-            </button>
-            <button onclick="switchTab('list')" id="btn-tab-list" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-sm rounded-lg transition flex items-center space-x-1.5">
-                <i class="fa-solid fa-list-check"></i>
-                <span>รายการเหตุการณ์ (<span id="incident-count-badge">0</span>)</span>
-            </button>
         </div>
     </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="flex-1 overflow-hidden relative flex flex-col">
-        
-        <!-- TAB 1: FORM (NEW / EDIT INCIDENT) -->
-        <div id="tab-form" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-            <form id="incident-form" onsubmit="handleFormSubmit(event)">
-                
-                <!-- TOP SUMMARY / QUICK TIME CONTROL BAR -->
-                <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-xl p-4 shadow-md mb-6 flex flex-wrap justify-between items-center gap-4">
-                    <div class="flex items-center space-x-4">
-                        <div>
-                            <label class="text-xs text-slate-400 block mb-1">เลขที่เหตุการณ์ (Incident ID)</label>
-                            <input type="text" id="inc_id" readonly class="bg-slate-950 font-mono font-bold text-red-400 border border-slate-700 rounded-lg px-3 py-2 text-base w-48 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 block mb-1">เจ้าหน้าที่บันทึก/ผู้รับแจ้ง (Dispatcher ID)</label>
-                            <select id="inc_dispatcher" required class="bg-slate-950 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-500 focus:outline-none min-w-[240px]">
-                                <option value="สื่อสาร 1 (นายมานพ  พิณปรุ)">สื่อสาร 1 (นายมานพ  พิณปรุ)</option>
-                                <option value="สื่อสาร 2 (นายบัณฑิต กุลจันทร์)">สื่อสาร 2 (นายบัณฑิต กุลจันทร์)</option>
-                                <option value="สื่อสาร 3 (นายสุรพงษ์ ชิดนอก)">สื่อสาร 3 (นายสุรพงษ์ ชิดนอก)</option>
-                                <option value="สื่อสาร 4 (นายชนะภัย มานะดี)">สื่อสาร 4 (นายชนะภัย มานะดี)</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center space-x-2">
-                        <button type="button" onclick="resetForm()" class="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition">
-                            <i class="fa-solid fa-rotate-left mr-1.5"></i> ล้างฟอร์ม
+<!-- ... existing code ... -->
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-slate-700/50">
+                        <button type="button" onclick="resetForm()" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-sm transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>ล้างข้อมูล</span>
                         </button>
-                        <button type="button" onclick="notifyCommandCurrentForm()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm rounded-lg shadow-md transition flex items-center space-x-2">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา</span>
+                        <button type="button" onclick="triggerCurrentFormTelegram()" class="w-full sm:w-auto px-5 py-2.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/40 rounded-xl font-semibold text-sm transition flex items-center justify-center space-x-2">
+                            <i class="fa-paper-plane text-sky-400 fab fa-telegram"></i>
+                            <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา (Telegram)</span>
                         </button>
-                        <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm rounded-lg shadow-md transition flex items-center space-x-2">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-red-600/30 transition flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>บันทึกเหตุการณ์</span>
+                            <span>บันทึกข้อมูลเหตุการณ์</span>
                         </button>
                     </div>
-                </div>
-
-                <!-- 12 MAIN CATEGORIES GRID -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                    <!-- COLUMN 1: Basic Info, Reporter, Location -->
-                    <div class="space-y-6">
-                        
-                        <!-- 1. ข้อมูลการรับแจ้ง -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-headset"></i>
-                                <span>1. ข้อมูลการรับแจ้ง (Call Intake)</span>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">วันที่และเวลารับแจ้ง *</label>
-                                    <input type="datetime-local" id="inc_call_time" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ช่องทางการรับแจ้ง *</label>
-                                    <select id="inc_channel" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                        <option value="สายด่วน 199">สายด่วน 199 (Direct Line)</option>
-                                        <option value="สายด่วน 191">สายด่วน 191 (ตำรวจ)</option>
-                                        <option value="วิทยุสื่อสาร">วิทยุสื่อสารศูนย์รับแจ้งเหตุ</option>
-                                        <option value="แอปพลิเคชัน/ออนไลน์">แอปพลิเคชัน / ระบบออนไลน์</option>
-                                        <option value="เดินทางมาแจ้งด้วยตนเอง">เดินทางมาแจ้งด้วยตนเอง</option>
-                                        <option value="ศูนย์รับเรื่องร้องเรียน 1559">ศูนย์รับเรื่องร้องเรียน 1559</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 2. ข้อมูลผู้แจ้งเหตุ -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-user-shield"></i>
-                                <span>2. ข้อมูลผู้แจ้งเหตุ (Caller Info)</span>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ชื่อ-นามสกุล ผู้แจ้ง *</label>
-                                    <input type="text" id="inc_caller_name" placeholder="ระบุชื่อผู้แจ้งเหตุ" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">หมายเลขโทรศัพท์ติดต่อ *</label>
-                                    <input type="tel" id="inc_caller_phone" placeholder="08X-XXX-XXXX" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none font-mono">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ความสัมพันธ์กับเหตุการณ์</label>
-                                    <select id="inc_caller_rel" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                        <option value="ผู้พบเห็นเหตุการณ์">ผู้พบเห็นเหตุการณ์ (Bystander)</option>
-                                        <option value="ผู้ประสบเหตุ/ผู้บาดเจ็บ">ผู้ประสบเหตุ / ผู้บาดเจ็บ (Victim)</option>
-                                        <option value="เจ้าของสถานที่/อาคาร">เจ้าของสถานที่ / อาคาร</option>
-                                        <option value="เจ้าหน้าที่/หน่วยงานภายนอก">เจ้าหน้าที่ / หน่วยงานภายนอก</option>
-                                        <option value="ญาติ/ครอบครัว">ญาติ / ครอบครัว</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ตำแหน่งปัจจุบันของผู้แจ้ง</label>
-                                    <input type="text" id="inc_caller_loc" placeholder="เช่น อยู่จุดเกิดเหตุ / ห่างจุดเกิดเหตุ 100 เมตร" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 3. ข้อมูลสถานที่เกิดเหตุ -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <span>3. สถานที่เกิดเหตุ (Incident Location)</span>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ที่อยู่โดยละเอียด (บ้านเลขที่/ถนน/ชุมชน/ตำบล) *</label>
-                                    <textarea id="inc_location_addr" rows="3" placeholder="เช่น 123 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none leading-relaxed"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">จุดสังเกตสำคัญ (Landmark)</label>
-                                    <input type="text" id="inc_landmark" placeholder="เช่น ใกล้แยกประตูน้ำ, ตรงข้ามโรงเรียน..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ลักษณะอาคาร/สถานที่</label>
-                                    <select id="inc_building_type" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                        <option value="บ้านพักอาศัย/ชุมชน">บ้านพักอาศัย / ชุมชนแอดอัด</option>
-                                        <option value="อาคารสูง/คอนโด/โรงแรม">อาคารสูง / คอนโดมิเนียม / โรงแรม</option>
-                                        <option value="อาคารพาณิชย์/ตึกแถว">อาคารพาณิชย์ / ตึกแถว</option>
-                                        <option value="โรงงาน/คลังสินค้า">โรงงานอุตสาหกรรม / คลังสินค้า</option>
-                                        <option value="สถานศึกษา/โรงพยาบาล">สถานศึกษา / โรงพยาบาล / สถานที่ราชการ</option>
-                                        <option value="ถนน/พื้นที่สาธารณะ">ถนนสาธารณะ / พื้นที่โล่งแจ้ง</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">จุดเข้า-ออก ที่เหมาะสมสำหรับรถดับเพลิง</label>
-                                    <input type="text" id="inc_access_point" placeholder="เช่น เข้าทางซอย 4 ทิศเหนือ เลี่ยงสายไฟฟ้า" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- COLUMN 2: Incident Type, Details, Victims, Risks -->
-                    <div class="space-y-6">
-
-                        <!-- 4 & 5. ประเภทและรายละเอียดเหตุการณ์ -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-fire-extinguisher"></i>
-                                <span>4-5. ประเภทและรายละเอียดเหตุ (Incident Nature)</span>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ประเภทเหตุการณ์หลัก *</label>
-                                    <select id="inc_type" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-amber-400 font-semibold focus:border-red-500 focus:outline-none">
-                                        <option value="เพลิงไหม้อาคาร/โครงสร้าง">เพลิงไหม้อาคาร / โครงสร้าง (Structure Fire)</option>
-                                        <option value="เพลิงไหม้ยานพาหนะ">เพลิงไหม้ยานพาหนะ (Vehicle Fire)</option>
-                                        <option value="เพลิงไหม้หญ้า/ขยะ/พื้นที่โล่ง">เพลิงไหม้หญ้า / ขยะ / พื้นที่โล่ง</option>
-                                        <option value="อุบัติเหตุจราจร/ตัดกรอบ">อุบัติเหตุจราจร (Traffic Incident)</option>
-                                        <option value="กู้ภัยอุบัติเหตุ/ช่วยเหลือประชาชน">กู้ภัยอุบัติเหตุ / ช่วยเหลือประชาชน (Rescue)</option>
-                                        <option value="สารเคมีและวัตถุอันตรายรั่วไหล">สารเคมีและวัตถุอันตรายรั่วไหล (HazMat)</option>
-                                        <option value="น้ำท่วม/อุทกภัย/สาธารณภัย">น้ำท่วม / อุทกภัย / ภัยธรรมชาติ</option>
-                                        <option value="ต้นไม้ล้ม/สิ่งกีดขวางทาง">ต้นไม้ล้ม / สิ่งกีดขวางทางจราจร</option>
-                                        <option value="เหตุสาธารณภัยอื่น ๆ">เหตุสาธารณภัยอื่น ๆ</option>
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-300 mb-1.5">ขนาดของเหตุการณ์</label>
-                                        <select id="inc_scale" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                            <option value="เล็ก (Level 1)">เล็ก (Level 1 - เบื้องต้น)</option>
-                                            <option value="ปานกลาง (Level 2)">ปานกลาง (Level 2 - ขยายตัว)</option>
-                                            <option value="ใหญ่ (Level 3)">ใหญ่ (Level 3 - รุนแรง)</option>
-                                            <option value="รุนแรงมาก (Level 4)">รุนแรงมาก (Level 4 - วิกฤต)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-300 mb-1.5">สถานะเหตุการณ์</label>
-                                        <select id="inc_active_status" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                            <option value="กำลังดำเนินอยู่ (Active)">กำลังดำเนินอยู่ (Active)</option>
-                                            <option value="ควบคุมเหตุได้แล้ว (Under Control)">ควบคุมเหตุได้แล้ว</option>
-                                            <option value="เสร็จสิ้นภารกิจ (Closed)">เสร็จสิ้นภารกิจ</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">รายละเอียดเหตุการณ์โดยสังเขป</label>
-                                    <textarea id="inc_description" rows="3" placeholder="กลุ่มควันพวยพุ่ง มีเพลิงลุกไหม้ชั้น 2..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none leading-relaxed"></textarea>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">สภาพอากาศ/กระแสลม</label>
-                                    <input type="text" id="inc_weather" placeholder="เช่น แดดจัด, ลมพัดตะวันออกแรง 15 km/h" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 6. ผู้ประสบเหตุและกลุ่มเปราะบาง -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-users-viewfinder"></i>
-                                <span>6. ผู้ประสบเหตุและผู้ได้รับผลกระทบ (Casualties)</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">ผู้บาดเจ็บ (คน)</label>
-                                    <input type="number" id="inc_injured" value="0" min="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base font-mono text-amber-400 font-bold text-center">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">ผู้เสียชีวิต (คน)</label>
-                                    <input type="number" id="inc_fatalities" value="0" min="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base font-mono text-red-500 font-bold text-center">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">ผู้สูญหาย (คน)</label>
-                                    <input type="number" id="inc_missing" value="0" min="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base font-mono text-slate-200 font-bold text-center">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">ผู้ติดค้างภายใน (คน)</label>
-                                    <input type="number" id="inc_trapped" value="0" min="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base font-mono text-red-400 font-bold text-center">
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <label class="block text-xs font-medium text-slate-300 mb-1.5">ข้อมูลกลุ่มเปราะบาง (เด็ก / ผู้สูงอายุ / ผู้พิการ)</label>
-                                <input type="text" id="inc_vulnerable" placeholder="เช่น มีผู้ป่วยติดเตียง 1 ราย บริเวณชั้น 1" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                            </div>
-                        </div>
-
-                        <!-- 7. ความเสี่ยงและอันตราย (NFPA Hazard Assessment) -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                <span>7. ความเสี่ยงและสิ่งอันตราย (NFPA Risk Assessment)</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-red-500/50 transition">
-                                    <input type="checkbox" id="hz_gas" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0">
-                                    <span class="text-slate-200 font-medium">ถังแก๊ส/ก๊าซหุงต้ม</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-red-500/50 transition">
-                                    <input type="checkbox" id="hz_chem" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0">
-                                    <span class="text-slate-200 font-medium">สารเคมี/วัตถุอันตราย</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-red-500/50 transition">
-                                    <input type="checkbox" id="hz_elec" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0">
-                                    <span class="text-slate-200 font-medium">สายไฟฟ้าแรงสูง</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-red-500/50 transition">
-                                    <input type="checkbox" id="hz_collapse" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0">
-                                    <span class="text-slate-200 font-medium">โครงสร้างเสี่ยงถล่ม</span>
-                                </label>
-                            </div>
-                            <div class="mt-3">
-                                <input type="text" id="inc_other_hazards" placeholder="ระบุความเสี่ยง/อันตรายอื่น ๆ เพิ่มเติม..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- COLUMN 3: Resources, Time Stamps, Summary -->
-                    <div class="space-y-6">
-
-                        <!-- 8. ทรัพยากรที่จัดสรร & สถานีดับเพลิง (Resource Allocation & Stations) -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                                <i class="fa-solid fa-truck-dispatch"></i>
-                                <span>8. การจัดสรรทรัพยากรและสถานีดับเพลิง (Resource Allocation)</span>
-                            </div>
-                            
-                            <!-- จำนวนยานพาหนะ/อุปกรณ์ (Quantity Input) -->
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">จำนวนทรัพยากรและยานพาหนะที่ส่งปฏิบัติการ:</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs mb-4">
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">รถดับเพลิง</span>
-                                    <input type="number" id="res_fire_qty" min="0" value="1" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-red-400 font-bold focus:outline-none text-base">
-                                </div>
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">รถกระเช้า</span>
-                                    <input type="number" id="res_ladder_qty" min="0" value="0" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-amber-400 font-bold focus:outline-none text-base">
-                                </div>
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">รถน้ำ</span>
-                                    <input type="number" id="res_water_qty" min="0" value="1" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-blue-400 font-bold focus:outline-none text-base">
-                                </div>
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">รถกู้ภัย</span>
-                                    <input type="number" id="res_rescue_qty" min="0" value="0" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-slate-200 font-bold focus:outline-none text-base">
-                                </div>
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">รถพยาบาล</span>
-                                    <input type="number" id="res_ems_qty" min="0" value="0" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-emerald-400 font-bold focus:outline-none text-base">
-                                </div>
-                                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between">
-                                    <span class="text-slate-300 font-medium">ตำรวจ/PEA</span>
-                                    <input type="number" id="res_support_qty" min="0" value="0" class="w-16 text-center bg-slate-900 border border-slate-700 rounded-md py-1 font-mono text-slate-200 font-bold focus:outline-none text-base">
-                                </div>
-                            </div>
-
-                            <!-- สถานีดับเพลิง 5 แห่ง (Checkboxes) -->
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">สถานีดับเพลิงเทศบาลนครนครราชสีมาที่ออกปฏิบัติการ:</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4">
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-700">
-                                    <input type="checkbox" id="st_jomSurang" checked class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700">
-                                    <span class="text-slate-200 font-medium">ส.ดพ.จอมสุรางค์ (ศูนย์ใหญ่)</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-700">
-                                    <input type="checkbox" id="st_suraNarai" class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700">
-                                    <span class="text-slate-200 font-medium">ส.ดพ.สุรนารายณ์</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-700">
-                                    <input type="checkbox" id="st_housing" class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700">
-                                    <span class="text-slate-200 font-medium">ส.ดพ.การเคหะฯ</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-700">
-                                    <input type="checkbox" id="st_salaThong" class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700">
-                                    <span class="text-slate-200 font-medium">ส.ดพ.ศาลาทอง</span>
-                                </label>
-                                <label class="flex items-center space-x-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-700 sm:col-span-2">
-                                    <input type="checkbox" id="st_chamChuri" class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700">
-                                    <span class="text-slate-200 font-medium">ส.ดพ.จามจุรี</span>
-                                </label>
-                            </div>
-
-                            <!-- หน่วยงานสนับสนุนอื่น ๆ -->
-                            <div>
-                                <label class="block text-xs font-medium text-slate-300 mb-1.5">หน่วยงานสนับสนุนอื่น ๆ / ข้อมูลเพิ่มเติม</label>
-                                <input type="text" id="inc_other_units" placeholder="เช่น ปภ.จังหวัด, กู้ภัยสว่างเมตตา, กู้ภัยฮุก 31..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                            </div>
-                        </div>
-
-                        <!-- 9. ระบบบันทึกเวลามาตรฐานสากล (Standard Time Stamps) -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition">
-                            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-                                <div class="flex items-center space-x-2 text-red-400 font-semibold text-sm">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span>9. ระบบบันทึกเวลามาตรฐาน (Time Stamps)</span>
-                                </div>
-                                <span class="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full font-mono">1-Click Stamp</span>
-                            </div>
-                            
-                            <!-- 9 Time Stamps Buttons Grid -->
-                            <div class="space-y-2.5 text-xs">
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">1. Call Received (รับแจ้ง)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_call" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-amber-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_call')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">2. Incident Created (สร้างเหตุ)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_created" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-amber-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_created')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">3. Dispatched (สั่งการ)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_dispatch" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-amber-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_dispatch')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">4. En Route (หน่วยออกเดินทาง)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_enroute" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-blue-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_enroute')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">5. Arrival (ถึงจุดเกิดเหตุ)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_arrival" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-blue-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_arrival')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">6. Operations Started (เริ่มปฏิบัติการ)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_ops" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-blue-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_ops')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">7. Under Control (ควบคุมเหตุได้)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_control" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-emerald-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_control')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">8. Incident Closed (สิ้นสุดภารกิจ)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_closed" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-emerald-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_closed')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800">
-                                    <span class="text-slate-300 font-medium">9. In Service (กลับฐาน/พร้อมเหตุต่อไป)</span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" id="ts_inservice" readonly placeholder="--:--:--" class="w-24 text-center font-mono bg-slate-900 border border-slate-700 rounded-md py-1 text-emerald-400 text-sm font-bold">
-                                        <button type="button" onclick="stampTime('ts_inservice')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 text-xs font-semibold">Stamp</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- BOTTOM FULL WIDTH SECTION: 10. Incident Summary -->
-                <div class="mt-6">
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-                        <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-800 text-red-400 font-semibold text-sm">
-                            <i class="fa-solid fa-clipboard-check"></i>
-                            <span>10. สรุปผลเหตุการณ์ (Incident Summary Report)</span>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">สาเหตุเบื้องต้น</label>
-                                    <input type="text" id="inc_cause" placeholder="เช่น ไฟฟ้าลัดวงจร, อุปกรณ์เสื่อมสภาพ" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">มูลค่าความเสียหายประเมิน (บาท)</label>
-                                    <input type="number" id="inc_damage_cost" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none font-mono">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">ผู้ได้รับผลกระทบ/ความเสียหายเพิ่มเติม</label>
-                                    <input type="text" id="inc_impact" placeholder="เช่น บ้านเรือนเสียหาย 1 หลัง" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1.5">หมายเหตุเพิ่มเติม</label>
-                                    <input type="text" id="inc_remarks" placeholder="รายละเอียดอื่นๆ เพิ่มเติม..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-        </div>
-
-        <!-- TAB 2: INCIDENT DASHBOARD / LIST VIEW -->
-        <div id="tab-list" class="hidden flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-            
-            <!-- CONTROLS & FILTER -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 shadow">
-                <div class="flex items-center space-x-3 flex-1 min-w-[280px]">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-                        <input type="text" id="search-input" oninput="renderIncidentList()" placeholder="ค้นหาเลขที่เหตุการณ์, ที่อยู่, ชื่อผู้แจ้ง..." class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:border-red-500 focus:outline-none">
-                    </div>
-                    <select id="filter-type" onchange="renderIncidentList()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none">
-                        <option value="ALL">ทุกประเภทเหตุ</option>
-                        <option value="เพลิงไหม้อาคาร/โครงสร้าง">เพลิงไหม้อาคาร</option>
-                        <option value="เพลิงไหม้ยานพาหนะ">เพลิงไหม้ยานพาหนะ</option>
-                        <option value="อุบัติเหตุจราจร/ตัดกรอบ">อุบัติเหตุจราจร</option>
-                        <option value="กู้ภัยอุบัติเหตุ/ช่วยเหลือประชาชน">กู้ภัย</option>
-                    </select>
-                </div>
-                <div class="text-xs text-slate-400">
-                    แสดงผลทั้งหมด <span id="filtered-count" class="font-bold text-white">0</span> รายการ
-                </div>
+                </form>
             </div>
+        <!-- Store current incident id being viewed in modal -->
+        let currentModalIncidentId = null;
 
-            <!-- TABLE OF INCIDENTS -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold">
-                                <th class="p-3.5">Incident ID / เวลา</th>
-                                <th class="p-3.5">ประเภทเหตุ</th>
-                                <th class="p-3.5">สถานที่เกิดเหตุ</th>
-                                <th class="p-3.5">ผู้แจ้งเหตุ</th>
-                                <th class="p-3.5">สถานะเหตุการณ์</th>
-                                <th class="p-3.5 text-center">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="incident-table-body" class="divide-y divide-slate-800/60">
-                            <!-- JS Will Render Rows -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        // Telegram Bot Credentials
+        const TELEGRAM_BOT_TOKEN = '9037116565:AAGpFIVcelwk1av1ww_o_24hX1zPM2y7uAs';
+        const TELEGRAM_CHAT_ID = '@RadioCenter199_bot';
 
-        </div>
+        // Function to send Telegram Notification using HTML/Markdown formatting
+        async function sendTelegramNotification(id) {
+            const item = incidents.find(inc => inc.id === id);
+            if (!item) return;
 
-    </main>
+            const text = 
+`🚨 <b>[รายงานเหตุฉุกเฉิน 199 โคราช]</b> 🚨
+----------------------------------------
+<b>เลขที่เหตุการณ์:</b> ${item.incidentId}
+<b>ประเภทเหตุ:</b> ${item.incidentType} (${item.incidentSeverity || 'ปกติ'})
+<b>วันที่-เวลารับแจ้ง:</b> ${item.callDateTime || '-'}
 
-    <!-- PRINTABLE DISPATCH SHEET (MODAL / PRINT ONLY) -->
-    <div id="print-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white text-slate-900 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative">
-            <button onclick="closePrintModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-800 no-print">
-                <i class="fa-solid fa-xmark text-2xl"></i>
-            </button>
-            
-            <div id="print-content" class="space-y-4">
-                <!-- Dynamic Print Content Injected via JS -->
-            </div>
+📍 <b>สถานที่เกิดเหตุ:</b> ${item.locationAddress || '-'}
+🏢 <b>จุดสังเกต/อาคาร:</b> ${item.locationLandmark || '-'}
 
-            <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-slate-200 no-print">
-                <button onclick="closePrintModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100">ปิด</button>
-                <button onclick="notifyCommandFromModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5 shadow">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>ส่งข้อมูลแจ้งผู้บังคับบัญชา</span>
-                </button>
-                <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5">
-                    <i class="fa-solid fa-print"></i>
-                    <span>พิมพ์เอกสาร</span>
-                </button>
-            </div>
-        </div>
-    </div>
+🚒 <b>ทรัพยากร/ยานพาหนะ:</b>
+• รถดับเพลิง: ${item.resFireTrucks || 0} คัน
+• รถกระเช้า: ${item.resAerialTrucks || 0} คัน
+• รถบรรทุกน้ำ: ${item.resWaterTrucks || 0} คัน
+• รถกู้ภัย: ${item.resRescueTrucks || 0} คัน
+• รถพยาบาล EMS: ${item.resAmbulance || 0} คัน
+🏢 <b>สถานีตอบรับ:</b> ${item.selectedStations && item.selectedStations.length > 0 ? item.selectedStations.join(', ') : 'ยังไม่ระบุ'}
+${item.resOtherDepts ? '🤝 <b>หน่วยงานสนับสนุน:</b> ' + item.resOtherDepts : ''}
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // GLOBAL STATE
-        let incidentsList = [];
-        let currentActivePrintId = null;
-        const NTFY_TOPIC_URL = 'https://ntfy.sh/koratfire-command-199';
+👤 <b>ผู้แจ้งเหตุ:</b> ${item.callerName || '-'} (โทร ${item.callerPhone || '-'})
+👨‍🚒 <b>ผู้รับแจ้ง/เจ้าหน้าที่:</b> ${item.dispatcherName}
+----------------------------------------
+⏱️ <b>เวลาสั่งการ (Dispatch):</b> ${item.dispatchTime || '-'}
+⏱️ <b>เวลาถึงที่เกิดเหตุ (Arrival):</b> ${item.arrivalTime || '-'}`;
 
-        // INITIALIZATION
-        window.onload = function() {
-            startClock();
-            generateIncidentId();
-            setDefaultCallTime();
-            renderIncidentList();
-        };
+            try {
+                showToast('กำลังส่งข้อมูลแจ้งผู้บังคับบัญชาไปยัง Telegram...', 'info');
+                
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
+                });
 
-        // REALTIME CLOCK
-        function startClock() {
-            function update() {
-                const now = new Date();
-                const clockEl = document.getElementById('live-clock');
-                const dateEl = document.getElementById('live-date');
-                if (clockEl) clockEl.innerText = now.toTimeString().split(' ')[0];
-                if (dateEl) {
-                    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                    dateEl.innerText = now.toLocaleDateString('th-TH', options);
+                const data = await response.json();
+
+                if (response.ok && data.ok) {
+                    showToast('ส่งข้อมูลแจ้งเตือนไปยัง Telegram สำเร็จ! (@RadioCenter199_bot)', 'success');
+                } else {
+                    throw new Error(data.description || 'ไม่สามารถส่งข้อความได้');
                 }
+            } catch (error) {
+                console.error('Telegram API Error:', error);
+                showToast('ไม่สามารถส่งข้อมูล Telegram ได้: ' + error.message, 'error');
             }
-            update();
-            setInterval(update, 1000);
         }
 
-        // AUTO INCIDENT ID GENERATOR
-        function generateIncidentId() {
-            const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            const idInput = document.getElementById('inc_id');
-            if (idInput) idInput.value = `INC-${dateStr}-${randomNum}`;
+        // Trigger Telegram notification manually from active form input before/during saving
+        function triggerCurrentFormTelegram() {
+            const type = document.getElementById('inc_type').value;
+            const address = document.getElementById('inc_address').value;
+            const caller = document.getElementById('inc_caller_name').value;
+            const phone = document.getElementById('inc_caller_phone').value;
+            const dispatcher = document.getElementById('inc_dispatcher').value;
+
+            if (!type || !address) {
+                showToast('กรุณากรอกประเภทเหตุและสถานที่เกิดเหตุก่อนส่งแจ้งเตือน', 'error');
+                return;
+            }
+
+            const text = 
+`🚨 <b>[แจ้งเตือนเหตุฉุกเฉินรับแจ้งใหม่]</b> 🚨
+----------------------------------------
+<b>ประเภทเหตุ:</b> ${type}
+📍 <b>สถานที่:</b> ${address}
+👤 <b>ผู้แจ้ง:</b> ${caller || '-'} (โทร ${phone || '-'})
+👨‍🚒 <b>เจ้าหน้าที่ผู้รับแจ้ง:</b> ${dispatcher}
+⏱️ <b>เวลา:</b> ${new Date().toLocaleString('th-TH')}`;
+
+            showToast('กำลังส่งข้อมูลไปยัง Telegram...', 'info');
+
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: text,
+                    parse_mode: 'HTML'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    showToast('ส่งข้อมูลแจ้งเตือนผู้บังคับบัญชาเรียบร้อยแล้ว!', 'success');
+                } else {
+                    showToast('ส่งข้อมูลไม่สำเร็จ: ' + data.description, 'error');
+                }
+            })
+            .catch(err => showToast('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message, 'error'));
         }
 
-        // SET DEFAULT DATETIME FOR CALL TIME
-        function setDefaultCallTime() {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            const callTimeInput = document.getElementById('inc_call_time');
-            if (callTimeInput) callTimeInput.value = now.toISOString().slice(0, 16);
+        // Toast message system
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            let bgClass = 'bg-emerald-600 text-white';
+            if (type === 'error') bgClass = 'bg-red-600 text-white';
+            if (type === 'info') bgClass = 'bg-blue-600 text-white';
+
+            toast.className = `fixed bottom-5 right-5 z-50 ${bgClass} px-4 py-3 rounded-xl shadow-2xl font-medium text-sm transition-all duration-300 transform translate-y-0 flex items-center space-x-2 border border-white/20`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'info' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
             
-            // Auto-stamp Call Received & Created Time
-            const timeStr = new Date().toTimeString().split(' ')[0];
-            const callTs = document.getElementById('ts_call');
-            const createdTs = document.getElementById('ts_created');
-            if (callTs && !callTs.value) callTs.value = timeStr;
-            if (createdTs && !createdTs.value) createdTs.value = timeStr;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
         }
 
-        // STAMP TIME BUTTON ACTION
-        function stampTime(fieldId) {
-            const timeStr = new Date().toTimeString().split(' ')[0];
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.value = timeStr;
-                alertCustom(`บันทึกตราเวลา ${timeStr} เรียบร้อยแล้ว`);
-            }
-        }
+        // Save incident form submit handler
+        document.getElementById('incident-form').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        // TAB SWITCHING LOGIC
-        function switchTab(tabName) {
-            const tabForm = document.getElementById('tab-form');
-            const tabList = document.getElementById('tab-list');
-            const btnForm = document.getElementById('btn-tab-form');
-            const btnList = document.getElementById('btn-tab-list');
-
-            if (tabName === 'form') {
-                tabForm.classList.remove('hidden');
-                tabList.classList.add('hidden');
-                btnForm.className = "px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-medium text-sm rounded-lg transition shadow flex items-center space-x-1.5";
-                btnList.className = "px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-sm rounded-lg transition flex items-center space-x-1.5";
-            } else {
-                tabForm.classList.add('hidden');
-                tabList.classList.remove('hidden');
-                btnForm.className = "px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-sm rounded-lg transition flex items-center space-x-1.5";
-                btnList.className = "px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-medium text-sm rounded-lg transition shadow flex items-center space-x-1.5";
-                renderIncidentList();
-            }
-        }
-
-        // RESET FORM
-        function resetForm() {
-            document.getElementById('incident-form').reset();
-            generateIncidentId();
-            setDefaultCallTime();
-            
-            // Clear Timestamps
-            ['ts_call', 'ts_created', 'ts_dispatch', 'ts_enroute', 'ts_arrival', 'ts_ops', 'ts_control', 'ts_closed', 'ts_inservice'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-            setDefaultCallTime();
-            alertCustom('ล้างฟอร์มกรอกข้อมูลเรียบร้อย');
-        }
-
-        // GET SELECTED STATIONS
-        function getSelectedStations() {
+            // Collect selected stations
             const stations = [];
-            if (document.getElementById('st_jomSurang')?.checked) stations.push('ส.ดพ.จอมสุรางค์');
-            if (document.getElementById('st_suraNarai')?.checked) stations.push('ส.ดพ.สุรนารายณ์');
-            if (document.getElementById('st_housing')?.checked) stations.push('ส.ดพ.การเคหะฯ');
-            if (document.getElementById('st_salaThong')?.checked) stations.push('ส.ดพ.ศาลาทอง');
-            if (document.getElementById('st_chamChuri')?.checked) stations.push('ส.ดพ.จามจุรี');
-            return stations;
-        }
+            document.querySelectorAll('.station-checkbox:checked').forEach(cb => {
+                stations.push(cb.value);
+            });
 
-        // HANDLE FORM SUBMIT
-        function handleFormSubmit(event) {
-            event.preventDefault();
+            const editingId = document.getElementById('editing_id').value;
+            const incidentId = document.getElementById('inc_id').value;
 
-            const newIncident = {
-                id: document.getElementById('inc_id').value,
-                dispatcher: document.getElementById('inc_dispatcher').value,
-                callTime: document.getElementById('inc_call_time').value,
+            const incidentData = {
+                id: editingId || 'INC-' + Date.now(),
+                incidentId: incidentId,
+                dispatcherName: document.getElementById('inc_dispatcher').value,
+                callDateTime: document.getElementById('inc_call_datetime').value,
                 channel: document.getElementById('inc_channel').value,
                 callerName: document.getElementById('inc_caller_name').value,
                 callerPhone: document.getElementById('inc_caller_phone').value,
                 callerRel: document.getElementById('inc_caller_rel').value,
                 callerLoc: document.getElementById('inc_caller_loc').value,
-                address: document.getElementById('inc_location_addr').value,
-                landmark: document.getElementById('inc_landmark').value,
+                locationAddress: document.getElementById('inc_address').value,
+                locationLandmark: document.getElementById('inc_landmark').value,
                 buildingType: document.getElementById('inc_building_type').value,
                 accessPoint: document.getElementById('inc_access_point').value,
-                type: document.getElementById('inc_type').value,
-                scale: document.getElementById('inc_scale').value,
-                status: document.getElementById('inc_active_status').value,
-                description: document.getElementById('inc_description').value,
-                weather: document.getElementById('inc_weather').value,
-                injured: document.getElementById('inc_injured').value || 0,
-                fatalities: document.getElementById('inc_fatalities').value || 0,
-                missing: document.getElementById('inc_missing').value || 0,
-                trapped: document.getElementById('inc_trapped').value || 0,
-                vulnerable: document.getElementById('inc_vulnerable').value,
-                hazards: {
-                    gas: document.getElementById('hz_gas').checked,
-                    chem: document.getElementById('hz_chem').checked,
-                    elec: document.getElementById('hz_elec').checked,
-                    collapse: document.getElementById('hz_collapse').checked,
-                    other: document.getElementById('inc_other_hazards').value
-                },
-                resourcesQty: {
-                    fire: document.getElementById('res_fire_qty').value || 0,
-                    ladder: document.getElementById('res_ladder_qty').value || 0,
-                    water: document.getElementById('res_water_qty').value || 0,
-                    rescue: document.getElementById('res_rescue_qty').value || 0,
-                    ems: document.getElementById('res_ems_qty').value || 0,
-                    support: document.getElementById('res_support_qty').value || 0
-                },
-                stations: getSelectedStations(),
-                otherUnits: document.getElementById('inc_other_units').value,
-                timestamps: {
-                    call: document.getElementById('ts_call').value,
-                    created: document.getElementById('ts_created').value,
-                    dispatch: document.getElementById('ts_dispatch').value,
-                    enroute: document.getElementById('ts_enroute').value,
-                    arrival: document.getElementById('ts_arrival').value,
-                    ops: document.getElementById('ts_ops').value,
-                    control: document.getElementById('ts_control').value,
-                    closed: document.getElementById('ts_closed').value,
-                    inservice: document.getElementById('ts_inservice').value
-                },
-                summary: {
-                    cause: document.getElementById('inc_cause').value,
-                    damageCost: document.getElementById('inc_damage_cost').value,
-                    impact: document.getElementById('inc_impact').value,
-                    remarks: document.getElementById('inc_remarks').value
-                }
+                incidentType: document.getElementById('inc_type').value,
+                incidentSeverity: document.getElementById('inc_severity').value,
+                detailsWhat: document.getElementById('inc_details_what').value,
+                detailsWhen: document.getElementById('inc_details_when').value,
+                detailsOngoing: document.getElementById('inc_details_ongoing').value,
+                detailsWeather: document.getElementById('inc_details_weather').value,
+                victimsInjured: document.getElementById('inc_victims_injured').value || '0',
+                victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
+                victimsMissing: document.getElementById('inc_victims_missing').value || '0',
+                victimsTrapped: document.getElementById('inc_victims_trapped').value || '0',
+                victimsSpecial: document.getElementById('inc_victims_special').value,
+                riskGas: document.getElementById('inc_risk_gas').checked,
+                riskHazmat: document.getElementById('inc_risk_hazmat').checked,
+                riskPower: document.getElementById('inc_risk_power').checked,
+                riskCollapse: document.getElementById('inc_risk_collapse').checked,
+                riskWeapon: document.getElementById('inc_risk_weapon').checked,
+                riskOther: document.getElementById('inc_risk_other').value,
+                resFireTrucks: document.getElementById('inc_res_firetrucks').value || '0',
+                resAerialTrucks: document.getElementById('inc_res_aerialtrucks').value || '0',
+                resWaterTrucks: document.getElementById('inc_res_watertrucks').value || '0',
+                resRescueTrucks: document.getElementById('inc_res_rescuetrucks').value || '0',
+                resAmbulance: document.getElementById('inc_res_ambulance').value || '0',
+                resPolice: document.getElementById('inc_res_police').value || '0',
+                resPea: document.getElementById('inc_res_pea').value || '0',
+                selectedStations: stations,
+                resOtherDepts: document.getElementById('inc_res_other_depts').value,
+                callReceivedTime: document.getElementById('ts_call_received').value,
+                incidentCreatedTime: document.getElementById('ts_created').value,
+                dispatchTime: document.getElementById('ts_dispatch').value,
+                enrouteTime: document.getElementById('ts_enroute').value,
+                arrivalTime: document.getElementById('ts_arrival').value,
+                opStartTime: document.getElementById('ts_op_start').value,
+                underControlTime: document.getElementById('ts_under_control').value,
+                closedTime: document.getElementById('ts_closed').value,
+                inServiceTime: document.getElementById('ts_in_service').value,
+                cause: document.getElementById('inc_cause').value,
+                damageEst: document.getElementById('inc_damage_est').value,
+                impactedPeople: document.getElementById('inc_impacted_people').value,
+                agencyUnits: document.getElementById('inc_agency_units').value,
+                summaryNotes: document.getElementById('inc_summary_notes').value
             };
 
-            // Insert or Update
-            const existingIdx = incidentsList.findIndex(i => i.id === newIncident.id);
-            if (existingIdx >= 0) {
-                incidentsList[existingIdx] = newIncident;
-                alertCustom(`อัปเดตข้อมูลเหตุการณ์ ${newIncident.id} เรียบร้อยแล้ว`);
+            if (editingId) {
+                const idx = incidents.findIndex(item => item.id === editingId);
+                if (idx !== -1) {
+                    incidents[idx] = incidentData;
+                }
             } else {
-                incidentsList.unshift(newIncident);
-                alertCustom(`บันทึกเหตุการณ์ใหม่ ${newIncident.id} เรียบร้อยแล้ว`);
+                incidents.unshift(incidentData);
             }
 
-            updateBadgeCount();
+            renderIncidentsTable();
+            showToast(editingId ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกเหตุการณ์เรียบร้อยแล้ว', 'success');
+
+            // Automatically push Telegram notification to Telegram bot
+            sendTelegramNotification(incidentData.id);
+
             resetForm();
-            switchTab('list');
+        });
+
+        // Notify Command from Modal via Telegram
+        function notifyCommandFromModal() {
+            if (currentModalIncidentId) {
+                sendTelegramNotification(currentModalIncidentId);
+            }
         }
 
-        // UPDATE BADGE COUNT
-        function updateBadgeCount() {
-            const badge = document.getElementById('incident-count-badge');
-            if (badge) badge.innerText = incidentsList.length;
-        }
+        // Trigger ntfy manually from active form input before saving
+        function triggerCurrentFormNtfy() {
+            const type = document.getElementById('inc_type').value;
+            const address = document.getElementById('inc_address').value;
+            const caller = document.getElementById('inc_caller_name').value;
+            const phone = document.getElementById('inc_caller_phone').value;
+            const dispatcher = document.getElementById('inc_dispatcher').value;
 
-        // RENDER INCIDENT TABLE LIST
-        function renderIncidentList() {
-            const tbody = document.getElementById('incident-table-body');
-            const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase();
-            const filterType = document.getElementById('filter-type')?.value || 'ALL';
-
-            if (!tbody) return;
-
-            const filtered = incidentsList.filter(item => {
-                const matchSearch = item.id.toLowerCase().includes(searchVal) ||
-                                   item.address.toLowerCase().includes(searchVal) ||
-                                   item.callerName.toLowerCase().includes(searchVal);
-                const matchType = filterType === 'ALL' || item.type === filterType;
-                return matchSearch && matchType;
-            });
-
-            document.getElementById('filtered-count').innerText = filtered.length;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-8 text-slate-500">
-                            <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-600"></i>
-                            ไม่พบข้อมูลเหตุการณ์ในระบบ
-                        </td>
-                    </tr>
-                `;
+            if (!type || !address) {
+                showToast('กรุณากรอกประเภทเหตุและสถานที่เกิดเหตุก่อนส่งแจ้งเตือน', 'error');
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => `
-                <tr class="hover:bg-slate-800/50 transition">
-                    <td class="p-3.5">
-                        <div class="font-mono font-bold text-red-400">${escapeHtml(item.id)}</div>
-                        <div class="text-[11px] text-slate-400">${formatDateTime(item.callTime)}</div>
-                    </td>
-                    <td class="p-3.5">
-                        <span class="font-semibold text-amber-400 block">${escapeHtml(item.type)}</span>
-                        <span class="text-[11px] text-slate-400">${escapeHtml(item.scale)}</span>
-                    </td>
-                    <td class="p-3.5 max-w-xs truncate">
-                        <div class="font-medium text-slate-200 truncate">${escapeHtml(item.address)}</div>
-                        <div class="text-[11px] text-slate-400 truncate">จุดสังเกต: ${escapeHtml(item.landmark || '-')}</div>
-                    </td>
-                    <td class="p-3.5">
-                        <div>${escapeHtml(item.callerName)}</div>
-                        <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(item.callerPhone)}</div>
-                    </td>
-                    <td class="p-3.5">
-                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${getStatusBadge(item.status)}">
-                            ${escapeHtml(item.status)}
-                        </span>
-                    </td>
-                    <td class="p-3.5 text-center">
-                        <div class="flex items-center justify-center space-x-1.5">
-                            <button onclick="sendNtfyNotification('${item.id}')" class="p-1.5 bg-amber-900/50 hover:bg-amber-800 text-amber-300 rounded border border-amber-700" title="ส่งข้อมูลแจ้งผู้บังคับบัญชา">
-                                <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                            <button onclick="openPrintModal('${item.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700" title="ดู/พิมพ์ ใบสั่งการ">
-                                <i class="fa-solid fa-print"></i>
-                            </button>
-                            <button onclick="editIncident('${item.id}')" class="p-1.5 bg-blue-900/50 hover:bg-blue-800 text-blue-300 rounded border border-blue-700" title="แก้ไข">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteIncident('${item.id}')" class="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-800" title="ลบ">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            const title = `🚨 [แจ้งเตือนเหตุใหม่] ${type}`;
+            const body = 
+`📍 สถานที่: ${address}
+👤 ผู้แจ้ง: ${caller || '-'} (โทร ${phone || '-'})
+👨‍🚒 เจ้าหน้าที่รับแจ้ง: ${dispatcher}
+⏱️ เวลา: ${new Date().toLocaleString('th-TH')}`;
+
+            fetch('https://ntfy.sh/koratfire-command-199', {
+                method: 'POST',
+                headers: {
+                    'Title': encodeURIComponent(title),
+                    'Priority': '4',
+                    'Tags': 'fire_engine,korat'
+                },
+                body: body
+            })
+            .then(res => {
+                if (res.ok) {
+                    showToast('ส่งข้อมูลแจ้งเตือนผู้บังคับบัญชาสำเร็จ!', 'success');
+                } else {
+                    showToast('ส่งข้อมูลแจ้งเตือนไม่สำเร็จ', 'error');
+                }
+            })
+            .catch(err => showToast('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message, 'error'));
         }
 
-        // EDIT INCIDENT
-        function editIncident(id) {
-            const item = incidentsList.find(i => i.id === id);
-            if (!item) return;
+        // Toast message system
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            let bgClass = 'bg-emerald-600 text-white';
+            if (type === 'error') bgClass = 'bg-red-600 text-white';
+            if (type === 'info') bgClass = 'bg-blue-600 text-white';
 
-            document.getElementById('inc_id').value = item.id;
-            document.getElementById('inc_dispatcher').value = item.dispatcher;
-            document.getElementById('inc_call_time').value = item.callTime;
-            document.getElementById('inc_channel').value = item.channel;
-            document.getElementById('inc_caller_name').value = item.callerName;
-            document.getElementById('inc_caller_phone').value = item.callerPhone;
-            document.getElementById('inc_caller_rel').value = item.callerRel;
-            document.getElementById('inc_caller_loc').value = item.callerLoc;
-            document.getElementById('inc_location_addr').value = item.address;
-            document.getElementById('inc_landmark').value = item.landmark;
-            document.getElementById('inc_building_type').value = item.buildingType;
-            document.getElementById('inc_access_point').value = item.accessPoint;
-            document.getElementById('inc_type').value = item.type;
-            document.getElementById('inc_scale').value = item.scale;
-            document.getElementById('inc_active_status').value = item.status;
-            document.getElementById('inc_description').value = item.description;
-            document.getElementById('inc_weather').value = item.weather;
-            document.getElementById('inc_injured').value = item.injured;
-            document.getElementById('inc_fatalities').value = item.fatalities;
-            document.getElementById('inc_missing').value = item.missing;
-            document.getElementById('inc_trapped').value = item.trapped;
-            document.getElementById('inc_vulnerable').value = item.vulnerable;
-
-            document.getElementById('hz_gas').checked = !!item.hazards?.gas;
-            document.getElementById('hz_chem').checked = !!item.hazards?.chem;
-            document.getElementById('hz_elec').checked = !!item.hazards?.elec;
-            document.getElementById('hz_collapse').checked = !!item.hazards?.collapse;
-            document.getElementById('inc_other_hazards').value = item.hazards?.other || '';
-
-            document.getElementById('res_fire_qty').value = item.resourcesQty?.fire || 0;
-            document.getElementById('res_ladder_qty').value = item.resourcesQty?.ladder || 0;
-            document.getElementById('res_water_qty').value = item.resourcesQty?.water || 0;
-            document.getElementById('res_rescue_qty').value = item.resourcesQty?.rescue || 0;
-            document.getElementById('res_ems_qty').value = item.resourcesQty?.ems || 0;
-            document.getElementById('res_support_qty').value = item.resourcesQty?.support || 0;
-
-            document.getElementById('st_jomSurang').checked = item.stations?.includes('ส.ดพ.จอมสุรางค์');
-            document.getElementById('st_suraNarai').checked = item.stations?.includes('ส.ดพ.สุรนารายณ์');
-            document.getElementById('st_housing').checked = item.stations?.includes('ส.ดพ.การเคหะฯ');
-            document.getElementById('st_salaThong').checked = item.stations?.includes('ส.ดพ.ศาลาทอง');
-            document.getElementById('st_chamChuri').checked = item.stations?.includes('ส.ดพ.จามจุรี');
-            document.getElementById('inc_other_units').value = item.otherUnits || '';
-
-            document.getElementById('ts_call').value = item.timestamps?.call || '';
-            document.getElementById('ts_created').value = item.timestamps?.created || '';
-            document.getElementById('ts_dispatch').value = item.timestamps?.dispatch || '';
-            document.getElementById('ts_enroute').value = item.timestamps?.enroute || '';
-            document.getElementById('ts_arrival').value = item.timestamps?.arrival || '';
-            document.getElementById('ts_ops').value = item.timestamps?.ops || '';
-            document.getElementById('ts_control').value = item.timestamps?.control || '';
-            document.getElementById('ts_closed').value = item.timestamps?.closed || '';
-            document.getElementById('ts_inservice').value = item.timestamps?.inservice || '';
-
-            document.getElementById('inc_cause').value = item.summary?.cause || '';
-            document.getElementById('inc_damage_cost').value = item.summary?.damageCost || '';
-            document.getElementById('inc_impact').value = item.summary?.impact || '';
-            document.getElementById('inc_remarks').value = item.summary?.remarks || '';
-
-            switchTab('form');
-            alertCustom(`โหลดข้อมูลเหตุการณ์ ${id} เข้าสู่ฟอร์มแล้ว`);
+            toast.className = `fixed bottom-5 right-5 z-50 ${bgClass} px-4 py-3 rounded-xl shadow-2xl font-medium text-sm transition-all duration-300 transform translate-y-0 flex items-center space-x-2 border border-white/20`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'info' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
         }
 
-        // DELETE INCIDENT
-        function deleteIncident(id) {
-            incidentsList = incidentsList.filter(i => i.id !== id);
-            updateBadgeCount();
-            renderIncidentList();
-            alertCustom(`ลบเหตุการณ์ ${id} เรียบร้อยแล้ว`);
-        }
+        // Save incident form submit handler
+        document.getElementById('incident-form').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        // BUILD INCIDENT OBJECT FROM CURRENT FORM
-        function getFormDataObject() {
-            return {
-                id: document.getElementById('inc_id').value,
-                dispatcher: document.getElementById('inc_dispatcher').value,
-                callTime: document.getElementById('inc_call_time').value,
+            // Collect selected stations
+            const stations = [];
+            document.querySelectorAll('.station-checkbox:checked').forEach(cb => {
+                stations.push(cb.value);
+            });
+
+            const editingId = document.getElementById('editing_id').value;
+            const incidentId = document.getElementById('inc_id').value;
+
+            const incidentData = {
+                id: editingId || 'INC-' + Date.now(),
+                incidentId: incidentId,
+                dispatcherName: document.getElementById('inc_dispatcher').value,
+                callDateTime: document.getElementById('inc_call_datetime').value,
                 channel: document.getElementById('inc_channel').value,
                 callerName: document.getElementById('inc_caller_name').value,
                 callerPhone: document.getElementById('inc_caller_phone').value,
                 callerRel: document.getElementById('inc_caller_rel').value,
-                address: document.getElementById('inc_location_addr').value,
-                landmark: document.getElementById('inc_landmark').value,
-                type: document.getElementById('inc_type').value,
-                scale: document.getElementById('inc_scale').value,
-                status: document.getElementById('inc_active_status').value,
-                description: document.getElementById('inc_description').value,
-                resourcesQty: {
-                    fire: document.getElementById('res_fire_qty').value || 0,
-                    ladder: document.getElementById('res_ladder_qty').value || 0,
-                    water: document.getElementById('res_water_qty').value || 0,
-                    rescue: document.getElementById('res_rescue_qty').value || 0,
-                    ems: document.getElementById('res_ems_qty').value || 0,
-                    support: document.getElementById('res_support_qty').value || 0
-                },
-                stations: getSelectedStations(),
-                otherUnits: document.getElementById('inc_other_units').value
+                callerLoc: document.getElementById('inc_caller_loc').value,
+                locationAddress: document.getElementById('inc_address').value,
+                locationLandmark: document.getElementById('inc_landmark').value,
+                buildingType: document.getElementById('inc_building_type').value,
+                accessPoint: document.getElementById('inc_access_point').value,
+                incidentType: document.getElementById('inc_type').value,
+                incidentSeverity: document.getElementById('inc_severity').value,
+                detailsWhat: document.getElementById('inc_details_what').value,
+                detailsWhen: document.getElementById('inc_details_when').value,
+                detailsOngoing: document.getElementById('inc_details_ongoing').value,
+                detailsWeather: document.getElementById('inc_details_weather').value,
+                victimsInjured: document.getElementById('inc_victims_injured').value || '0',
+                victimsFatal: document.getElementById('inc_victims_fatal').value || '0',
+                victimsMissing: document.getElementById('inc_victims_missing').value || '0',
+                victimsTrapped: document.getElementById('inc_victims_trapped').value || '0',
+                victimsSpecial: document.getElementById('inc_victims_special').value,
+                riskGas: document.getElementById('inc_risk_gas').checked,
+                riskHazmat: document.getElementById('inc_risk_hazmat').checked,
+                riskPower: document.getElementById('inc_risk_power').checked,
+                riskCollapse: document.getElementById('inc_risk_collapse').checked,
+                riskWeapon: document.getElementById('inc_risk_weapon').checked,
+                riskOther: document.getElementById('inc_risk_other').value,
+                resFireTrucks: document.getElementById('inc_res_firetrucks').value || '0',
+                resAerialTrucks: document.getElementById('inc_res_aerialtrucks').value || '0',
+                resWaterTrucks: document.getElementById('inc_res_watertrucks').value || '0',
+                resRescueTrucks: document.getElementById('inc_res_rescuetrucks').value || '0',
+                resAmbulance: document.getElementById('inc_res_ambulance').value || '0',
+                resPolice: document.getElementById('inc_res_police').value || '0',
+                resPea: document.getElementById('inc_res_pea').value || '0',
+                selectedStations: stations,
+                resOtherDepts: document.getElementById('inc_res_other_depts').value,
+                callReceivedTime: document.getElementById('ts_call_received').value,
+                incidentCreatedTime: document.getElementById('ts_created').value,
+                dispatchTime: document.getElementById('ts_dispatch').value,
+                enrouteTime: document.getElementById('ts_enroute').value,
+                arrivalTime: document.getElementById('ts_arrival').value,
+                opStartTime: document.getElementById('ts_op_start').value,
+                underControlTime: document.getElementById('ts_under_control').value,
+                closedTime: document.getElementById('ts_closed').value,
+                inServiceTime: document.getElementById('ts_in_service').value,
+                cause: document.getElementById('inc_cause').value,
+                damageEst: document.getElementById('inc_damage_est').value,
+                impactedPeople: document.getElementById('inc_impacted_people').value,
+                agencyUnits: document.getElementById('inc_agency_units').value,
+                summaryNotes: document.getElementById('inc_summary_notes').value
             };
-        }
 
-        // NTFY NOTIFICATION FUNCTION
-        async function sendNtfyNotification(incidentIdOrObj) {
-            let incidentData = null;
-
-            if (typeof incidentIdOrObj === 'string') {
-                incidentData = incidentsList.find(i => i.id === incidentIdOrObj);
-            } else if (typeof incidentIdOrObj === 'object') {
-                incidentData = incidentIdOrObj;
+            if (editingId) {
+                const idx = incidents.findIndex(item => item.id === editingId);
+                if (idx !== -1) {
+                    incidents[idx] = incidentData;
+                }
+            } else {
+                incidents.unshift(incidentData);
             }
 
-            if (!incidentData || !incidentData.id) {
-                alertCustom('กรุณากรอกข้อมูลเหตุการณ์ก่อนทำการส่งแจ้งเตือน');
-                return;
-            }
+            renderIncidentsTable();
+            showToast(editingId ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกเหตุการณ์เรียบร้อยแล้ว', 'success');
 
-            const stationsText = incidentData.stations && incidentData.stations.length > 0 ? incidentData.stations.join(', ') : 'ไม่ได้ระบุ';
-            const messageBody = 
-`🚨 รายงานเหตุฉุกเฉิน 199 เทศบาลนครนครราชสีมา
-----------------------------------------
-📌 เลขที่เหตุ: ${incidentData.id}
-🔥 ประเภทเหตุ: ${incidentData.type || 'ไม่ระบุ'} (${incidentData.scale || 'Level 1'})
-📍 สถานที่: ${incidentData.address || 'ไม่ระบุ'} (จุดสังเกต: ${incidentData.landmark || '-'})
-👤 ผู้แจ้ง: ${incidentData.callerName || '-'} (${incidentData.callerPhone || '-'})
-🚒 สถานีออกปฏิบัติการ: ${stationsText}
-🚚 ทรัพยากร: ดับเพลิง ${incidentData.resourcesQty?.fire || 0} คัน / รถน้ำ ${incidentData.resourcesQty?.water || 0} คัน
-📝 รายละเอียด: ${incidentData.description || '-'}
-👨‍✈️ ผู้สั่งการ: ${incidentData.dispatcher || '-'}`;
+            // Automatically push ntfy notification to command topic
+            sendNtfyNotification(incidentData.id);
 
-            try {
-                alertCustom('กำลังส่งข้อมูลแจ้งเตือนไปยังผู้บังคับบัญชา...');
-                
-                // Try sending standard POST request
-                let response = null;
-                try {
-                    response = await fetch(NTFY_TOPIC_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Title': `🚨 [199 Korat Dispatch] ${incidentData.type || 'แจ้งเหตุฉุกเฉิน'}`,
-                            'Priority': 'high',
-                            'Tags': 'rotating_light,fire_engine,warning'
-                        },
-                        body: messageBody
-                    });
-                } catch (err) {
-                    // Fallback using no-cors mode to bypass browser CORS restrictions
-                    await fetch(NTFY_TOPIC_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: `[199 Korat Dispatch] ${incidentData.type || 'แจ้งเหตุฉุกเฉิน'}\n${messageBody}`
-                    });
-                    response = { ok: true };
-                }
+            resetForm();
+        });
 
-                if (response && (response.ok || response.type === 'opaque')) {
-                    alertCustom(`ส่งข้อมูลแจ้งผู้บังคับบัญชาเรียบร้อยแล้ว (${incidentData.id})`);
-                } else {
-                    alertCustom('เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง ntfy.sh');
-                }
-            } catch (error) {
-                console.error('Error sending ntfy notification:', error);
-                alertCustom('ไม่สามารถเชื่อมต่อกับบริการส่งแจ้งเตือน ntfy.sh ได้');
+        // Notify Command from Modal
+        function notifyCommandFromModal() {
+            if (currentModalIncidentId) {
+                sendNtfyNotification(currentModalIncidentId);
             }
         }
-
-        // NOTIFY FROM CURRENT FORM
-<!-- ... existing code -->
+<!-- ... existing code ... -->
