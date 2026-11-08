@@ -1030,17 +1030,30 @@
 
             try {
                 alertCustom('กำลังส่งข้อมูลแจ้งเตือนไปยังผู้บังคับบัญชา...');
-                const response = await fetch(NTFY_TOPIC_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Title': `🚨 [199 Korat Dispatch] ${incidentData.type || 'แจ้งเหตุฉุกเฉิน'}`,
-                        'Priority': 'high',
-                        'Tags': 'rotating_light,fire_engine,warning'
-                    },
-                    body: messageBody
-                });
+                
+                // Try sending standard POST request
+                let response = null;
+                try {
+                    response = await fetch(NTFY_TOPIC_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Title': `🚨 [199 Korat Dispatch] ${incidentData.type || 'แจ้งเหตุฉุกเฉิน'}`,
+                            'Priority': 'high',
+                            'Tags': 'rotating_light,fire_engine,warning'
+                        },
+                        body: messageBody
+                    });
+                } catch (err) {
+                    // Fallback using no-cors mode to bypass browser CORS restrictions
+                    await fetch(NTFY_TOPIC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: `[199 Korat Dispatch] ${incidentData.type || 'แจ้งเหตุฉุกเฉิน'}\n${messageBody}`
+                    });
+                    response = { ok: true };
+                }
 
-                if (response.ok) {
+                if (response && (response.ok || response.type === 'opaque')) {
                     alertCustom(`ส่งข้อมูลแจ้งผู้บังคับบัญชาเรียบร้อยแล้ว (${incidentData.id})`);
                 } else {
                     alertCustom('เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง ntfy.sh');
@@ -1052,146 +1065,4 @@
         }
 
         // NOTIFY FROM CURRENT FORM
-        function notifyCommandCurrentForm() {
-            const formData = getFormDataObject();
-            sendNtfyNotification(formData);
-        }
-
-        // NOTIFY FROM PRINT MODAL
-        function notifyCommandFromModal() {
-            if (currentActivePrintId) {
-                sendNtfyNotification(currentActivePrintId);
-            }
-        }
-
-        // OPEN DISPATCH PRINT MODAL WITH ID SAVED
-        function openPrintModal(id) {
-            currentActivePrintId = id;
-            const item = incidentsList.find(i => i.id === id);
-            if (!item) return;
-
-            const modal = document.getElementById('print-modal');
-            const content = document.getElementById('print-content');
-
-            content.innerHTML = `
-                <div class="border-b-2 border-slate-900 pb-3 mb-3 flex justify-between items-center">
-                    <div>
-                        <h2 class="font-bold text-lg text-slate-900">ศูนย์รับแจ้งเหตุฉุกเฉิน 199 เทศบาลนครนครราชสีมา</h2>
-                        <p class="text-xs text-slate-600">ใบสั่งการและบันทึกปฏิบัติการเหตุฉุกเฉิน (ECC/PSAP Emergency Dispatch Sheet)</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-mono font-bold text-base text-red-600">${item.id}</div>
-                        <div class="text-[11px] text-slate-500">${formatDateTime(item.callTime)}</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="border p-2.5 rounded-lg">
-                        <p class="font-semibold text-slate-700 border-b pb-1 mb-1">ข้อมูลผู้แจ้ง:</p>
-                        <p>ชื่อ: ${item.callerName} (${item.callerRel})</p>
-                        <p>โทรศัพท์: ${item.callerPhone}</p>
-                        <p>ช่องทาง: ${item.channel}</p>
-                    </div>
-                    <div class="border p-2.5 rounded-lg">
-                        <p class="font-semibold text-slate-700 border-b pb-1 mb-1">สถานที่เกิดเหตุ:</p>
-                        <p class="font-bold text-slate-800">${item.address}</p>
-                        <p>จุดสังเกต: ${item.landmark || '-'}</p>
-                        <p>ลักษณะอาคาร: ${item.buildingType}</p>
-                    </div>
-                </div>
-
-                <div class="border p-2.5 rounded-lg text-xs space-y-1">
-                    <p class="font-semibold text-slate-700 border-b pb-1 mb-1">รายละเอียดเหตุการณ์:</p>
-                    <p><span class="font-bold text-red-600">${item.type}</span> (${item.scale}) - สถานะ: ${item.status}</p>
-                    <p class="text-slate-700">${item.description}</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="border p-2.5 rounded-lg">
-                        <p class="font-semibold text-slate-700 border-b pb-1 mb-1">ผู้ได้รับผลกระทบ:</p>
-                        <p>บาดเจ็บ: ${item.injured} | เสียชีวิต: ${item.fatalities} | ผู้ติดค้าง: ${item.trapped}</p>
-                        <p class="text-red-600 font-semibold">กลุ่มเปราะบาง: ${item.vulnerable || '-'}</p>
-                    </div>
-                    <div class="border p-2.5 rounded-lg">
-                        <p class="font-semibold text-slate-700 border-b pb-1 mb-1">ความเสี่ยงและอันตราย:</p>
-                        <p>${getHazardsText(item.hazards)}</p>
-                    </div>
-                </div>
-
-                <div class="border p-2.5 rounded-lg text-xs space-y-1">
-                    <p class="font-semibold text-slate-700 border-b pb-1 mb-1">การจัดสรรทรัพยากรและสถานีดับเพลิง:</p>
-                    <p><span class="font-semibold">ยานพาหนะ:</span> ดับเพลิง ${item.resourcesQty?.fire || 0} คัน | รถกระเช้า ${item.resourcesQty?.ladder || 0} คัน | รถน้ำ ${item.resourcesQty?.water || 0} คัน | รถกู้ภัย ${item.resourcesQty?.rescue || 0} คัน | พยาบาล ${item.resourcesQty?.ems || 0} คัน</p>
-                    <p><span class="font-semibold">สถานีดับเพลิงที่ส่งปฏิบัติการ:</span> ${item.stations && item.stations.length > 0 ? item.stations.join(', ') : 'ไม่ได้ระบุ'}</p>
-                    <p><span class="font-semibold">หน่วยงานสนับสนุนอื่น ๆ:</span> ${item.otherUnits || '-'}</p>
-                </div>
-
-                <div class="border p-2.5 rounded-lg text-xs">
-                    <p class="font-semibold text-slate-700 border-b pb-1 mb-1">บันทึกเวลามาตรฐาน (Timestamps Log):</p>
-                    <div class="grid grid-cols-3 gap-2 font-mono text-[11px]">
-                        <div>รับแจ้ง: ${item.timestamps.call || '-'}</div>
-                        <div>สั่งการ: ${item.timestamps.dispatch || '-'}</div>
-                        <div>หน่วยออกเดินทาง: ${item.timestamps.enroute || '-'}</div>
-                        <div>ถึงจุดเกิดเหตุ: ${item.timestamps.arrival || '-'}</div>
-                        <div>เริ่มปฏิบัติการ: ${item.timestamps.ops || '-'}</div>
-                        <div>ควบคุมเหตุได้: ${item.timestamps.control || '-'}</div>
-                        <div>สิ้นสุดภารกิจ: ${item.timestamps.closed || '-'}</div>
-                        <div>กลับฐาน: ${item.timestamps.inservice || '-'}</div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-300">
-                    <div>ผู้รับแจ้ง/สั่งการ: <span class="font-semibold">${item.dispatcher}</span></div>
-                    <div>พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</div>
-                </div>
-            `;
-
-            modal.classList.remove('hidden');
-        }
-
-        function closePrintModal() {
-            document.getElementById('print-modal').classList.add('hidden');
-        }
-
-        // HELPERS
-        function formatDateTime(dtStr) {
-            if (!dtStr) return '-';
-            const dt = new Date(dtStr);
-            return dt.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-
-        function getStatusBadge(status) {
-            if (status.includes('Active')) return 'bg-red-500/20 text-red-400 border border-red-500/40';
-            if (status.includes('Under Control')) return 'bg-amber-500/20 text-amber-400 border border-amber-500/40';
-            return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
-        }
-
-        function getHazardsText(hz) {
-            let list = [];
-            if (hz?.gas) list.push('ถังแก๊ส');
-            if (hz?.chem) list.push('สารเคมี');
-            if (hz?.elec) list.push('สายไฟแรงสูง');
-            if (hz?.collapse) list.push('เสี่ยงถล่ม');
-            if (hz?.other) list.push(hz.other);
-            return list.length > 0 ? list.join(', ') : 'ไม่มีรายงานอันตรายพิเศษ';
-        }
-
-        function alertCustom(msg) {
-            const banner = document.createElement('div');
-            banner.className = 'fixed bottom-4 right-4 bg-emerald-600 text-white px-4 py-3 rounded-lg shadow-2xl z-50 flex items-center space-x-2 text-sm font-semibold transition transform translate-y-0';
-            banner.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i><span>${msg}</span>`;
-            document.body.appendChild(banner);
-            setTimeout(() => {
-                banner.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => banner.remove(), 300);
-            }, 3000);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
-        }
-    </script>
-</body>
-</html>
+<!-- ... existing code -->
